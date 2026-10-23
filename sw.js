@@ -9,7 +9,7 @@
      limitado a /numerospoligonales/.
    ========================================================================== */
 
-const SW_VERSION = "v1.0.0";
+const SW_VERSION = "v1.1.0";
 const APP_SHELL_CACHE = `npf-shell-${SW_VERSION}`;
 const RUNTIME_CACHE = `npf-runtime-${SW_VERSION}`;
 const FONT_CACHE = `npf-fonts-${SW_VERSION}`;
@@ -183,10 +183,36 @@ self.addEventListener("fetch", (event) => {
 });
 
 // ---------------------------------------------------------------------------
-// MESSAGE: permite forzar actualización desde la página.
+// MESSAGE: permite forzar actualización desde la página y consultar la versión.
 // ---------------------------------------------------------------------------
 self.addEventListener("message", (event) => {
-  if (event.data === "SKIP_WAITING") {
+  const data = event.data;
+
+  // Compatibilidad hacia atrás: el string "SKIP_WAITING" sigue funcionando.
+  if (data === "SKIP_WAITING") {
     self.skipWaiting();
+    return;
+  }
+
+  if (data && typeof data === "object") {
+    if (data.type === "SKIP_WAITING") {
+      self.skipWaiting();
+      return;
+    }
+    if (data.type === "GET_VERSION") {
+      // Responde al cliente que preguntó (event.source) con la versión del SW.
+      const target = event.source || self.clients;
+      if (event.source) {
+        event.source.postMessage({ type: "VERSION", version: SW_VERSION });
+      } else {
+        // Fallback: difundir a todos los clientes controlados.
+        self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+          clients.forEach((c) =>
+            c.postMessage({ type: "VERSION", version: SW_VERSION })
+          );
+        });
+      }
+      return;
+    }
   }
 });
