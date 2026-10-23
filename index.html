@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- ============ PWA / SEO Meta ============ -->
+  <title>Números Poligonales y Figurados: De la Geometría a la Multidimensionalidad</title>
+  <meta name="description" content="Explora los números poligonales y figurados (triangulares, cuadrados, pentagonales, hexagonales), visualizaciones 3D multidimensionales, demostraciones visuales sin palabras, desafíos y una calculadora poligonal. App instalable (PWA).">
+  <meta name="author" content="Tecdea">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="color-scheme" content="dark">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- Favicons (todas las plataformas) -->
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="icon" type="image/png" sizes="64x64" href="./favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+  <link rel="mask-icon" href="./favicon.svg" color="#2563eb">
+
+  <!-- iOS / Safari PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Números Poligonales">
+  <meta name="application-name" content="Números Poligonales">
+
+  <!-- Microsoft Tiles -->
+  <meta name="msapplication-TileColor" content="#2563eb">
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Números Poligonales y Figurados">
+  <meta property="og:description" content="De la Geometría a la Multidimensionalidad: visualizaciones interactivas de números poligonales, tetraedros 3D, demostraciones sin palabras y calculadora.">
+  <meta property="og:image" content="./og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:url" content="https://tecdea.github.io/numerospoligonales/">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Números Poligonales y Figurados">
+  <meta name="twitter:description" content="De la Geometría a la Multidimensionalidad: visualizaciones interactivas de números poligonales, tetraedros 3D, demostraciones sin palabras y calculadora.">
+  <meta name="twitter:image" content="./og-image.png">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- KaTeX CSS and JS for crisp mathematical rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Three.js for 3D Multidimensional Visualizations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f19;
+      color: #f3f4f6;
+    }
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .nav-tab {
+      transition: all 0.2s ease-in-out;
+    }
+    .nav-tab.tab-active {
+      background-color: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+    }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-blue-600 selection:text-white">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 px-4 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center space-x-2">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-lg text-white shadow-md shadow-blue-500/20">
+            $\Delta$
+          </div>
+          <div>
+            <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+              Números Poligonales y Figurados
+            </h1>
+            <p class="text-xs text-slate-400">De la Geometría a la Multidimensionalidad</p>
+          </div>
+        </div>
+        <button onclick="showInfoModal()" class="md:hidden p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white">
+          ℹ️
+        </button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center space-x-1 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 text-xs font-medium scrollbar-none">
+        <button id="tab-triangular" onclick="switchTab('triangular')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          Triangulares ($s=3$)
+        </button>
+        <button id="tab-square" onclick="switchTab('square')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          Cuadrados ($s=4$)
+        </button>
+        <button id="tab-pentagonal" onclick="switchTab('pentagonal')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          Pentagonales ($s=5$)
+        </button>
+        <button id="tab-hexagonal" onclick="switchTab('hexagonal')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          Hexagonales ($s=6$)
+        </button>
+        <button id="tab-general" onclick="switchTab('general')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          $s$-Gonales (General)
+        </button>
+        <button id="tab-multidim" onclick="switchTab('multidim')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap border border-indigo-500/30">
+          🧊 3D / Multidim
+        </button>
+        <button id="tab-proofs" onclick="switchTab('proofs')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          💡 Demostraciones
+        </button>
+        <button id="tab-quiz" onclick="switchTab('quiz')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap border border-yellow-500/30">
+          🏆 Desafíos
+        </button>
+        <button id="tab-calculator" onclick="switchTab('calculator')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+          🔢 Calculadora
+        </button>
+      </nav>
+
+      <button onclick="showInfoModal()" class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs text-slate-300 hover:text-white transition">
+        <span>ℹ️ Información</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 gap-6">
+
+    <!-- SCREEN 1: 2D Polygonal Numbers (Triangular, Square, Pentagonal, Hexagonal, General s-Gonal) -->
+    <section id="polygonScreen" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Interactive Visual Canvas Box -->
+      <div class="lg:col-span-7 flex flex-col space-y-4">
+        <div class="glass-panel p-4 sm:p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
+          
+          <!-- Header info on screen -->
+          <div class="flex items-center justify-between mb-3 z-10">
+            <div>
+              <span id="screenBadge" class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-900/50 text-blue-300 border border-blue-700/50">
+                Polígono s = 3
+              </span>
+              <h2 id="screenTitle" class="text-xl font-bold text-white mt-1">Números Triangulares</h2>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-400 block">Número Figurado</span>
+              <span id="currentNBadge" class="text-xl font-extrabold text-blue-400">P_n</span>
+            </div>
+          </div>
+
+          <!-- Canvas Container -->
+          <div class="relative w-full aspect-square max-h-[440px] bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-center p-2 overflow-hidden shadow-inner">
+            <canvas id="polyCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+            
+            <!-- Floating overlay value -->
+            <div class="absolute bottom-3 right-3 glass-card px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 border border-slate-700/50">
+              Puntos Totales: <span id="currentValueDisplay" class="text-blue-400 font-bold text-sm">1</span>
+            </div>
+          </div>
+
+          <!-- Controls Bar -->
+          <div class="mt-4 space-y-3 z-10">
+            
+            <!-- Slider s (Visible only in General Tab) -->
+            <div id="generalSideControl" class="hidden space-y-1">
+              <div class="flex justify-between text-xs font-medium text-slate-300">
+                <label for="sliderS">Número de Lados del Polígono ($s$):</label>
+                <span id="sliderSValue" class="text-indigo-400 font-bold">s = 5</span>
+              </div>
+              <input id="sliderS" type="range" min="3" max="16" value="5" step="1" 
+                     class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                     oninput="onSChange(this.value)">
+            </div>
+
+            <!-- Slider n (Order/Level) -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-medium text-slate-300">
+                <label for="sliderN">Orden / Posición ($n$):</label>
+                <span id="sliderNValue" class="text-blue-400 font-bold">n = 4</span>
+              </div>
+              <input id="sliderN" type="range" min="1" max="12" value="4" step="1" 
+                     class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                     oninput="onNChange(this.value)">
+            </div>
+
+            <!-- Display Options Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+              <div class="flex items-center space-x-3">
+                <label class="flex items-center space-x-1.5 cursor-pointer text-slate-300">
+                  <input type="checkbox" id="chkShowGnomon" checked onchange="drawPolygonCanvas()" class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-blue-500">
+                  <span>Destacar Gnomon ($\Delta P_n$)</span>
+                </label>
+                <label class="flex items-center space-x-1.5 cursor-pointer text-slate-300">
+                  <input type="checkbox" id="chkShowGrid" onchange="drawPolygonCanvas()" class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-blue-500">
+                  <span>Líneas Geométricas</span>
+                </label>
+              </div>
+              <button onclick="animateConstruction()" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition flex items-center gap-1">
+                ▶ Reconstruir
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Mathematical & Explanatory Details Box -->
+      <div class="lg:col-span-5 flex flex-col space-y-4">
+        
+        <!-- Formula Card -->
+        <div class="glass-panel p-5 rounded-2xl shadow-xl space-y-4">
+          <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <span>🧮</span> Fórmula y Estructura
+          </h3>
+
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-center space-y-2">
+            <div id="katexFormula" class="text-lg text-blue-300 min-h-[2rem] flex items-center justify-center"></div>
+            <div id="katexExpanded" class="text-xs text-slate-400 font-mono"></div>
+          </div>
+
+          <!-- Gnomon & Recurrence Relation -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold">Gnomon ($\Delta P_n$)</span>
+              <div id="gnomonDisplay" class="text-base font-bold text-emerald-400 mt-0.5">+0 puntos</div>
+              <p class="text-[11px] text-slate-400 mt-1">Capa añadida en el paso $n$.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold">Recurrencia</span>
+              <div id="recurrenceDisplay" class="text-xs font-mono text-indigo-300 mt-1">P_n = P_{n-1} + g</div>
+              <p class="text-[11px] text-slate-400 mt-1">Acumulación progresiva.</p>
+            </div>
+          </div>
+
+          <!-- Sequence List (First 10 terms) -->
+          <div class="space-y-1.5">
+            <span class="text-xs font-semibold text-slate-400">Primeros 10 términos de la secuencia:</span>
+            <div id="sequencePills" class="flex flex-wrap gap-1.5 text-xs font-mono"></div>
+          </div>
+        </div>
+
+        <!-- Geometric Properties & Context -->
+        <div class="glass-panel p-5 rounded-2xl shadow-xl flex-1 space-y-3">
+          <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <span>📘</span> Propiedades Geométricas
+          </h3>
+          <div id="gnomonDescription" class="text-xs text-slate-300 leading-relaxed space-y-2">
+            <!-- Dynamic gnomon explanation text -->
+          </div>
+          <div id="propertyNotes" class="space-y-2 text-xs text-slate-400">
+            <!-- Property bullets -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SCREEN 2: 3D Multidimensional & Pascal Triangle Pyramids -->
+    <section id="multidimScreen" class="hidden grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-8 glass-panel p-5 rounded-2xl shadow-xl flex flex-col space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-900/50 text-indigo-300 border border-indigo-700/50">
+              Visualización 3D Interactivas
+            </span>
+            <h2 class="text-xl font-bold text-white mt-1">Pirámides y Tetraedros Multidimensionales</h2>
+          </div>
+          <div class="text-xs text-slate-400">
+            Arrastra para rotar la cámara 3D 🔄
+          </div>
+        </div>
+
+        <!-- 3D Canvas WebGL Container -->
+        <div id="threeContainer" class="relative w-full aspect-video min-h-[360px] bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+          <!-- WebGL Renderer Canvas will be injected here -->
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div>
+            <label for="slider3D" class="block text-xs font-medium text-slate-300 mb-1">Capas / Altura ($n$): <span id="val3DN" class="text-indigo-400 font-bold">4</span></label>
+            <input id="slider3D" type="range" min="1" max="8" value="4" step="1" 
+                   class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                   oninput="update3DScene(this.value)">
+          </div>
+          <div>
+            <label for="select3DShape" class="block text-xs font-medium text-slate-300 mb-1">Solido / Construcción:</label>
+            <select id="select3DShape" onchange="update3DShape(this.value)" class="w-full p-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200">
+              <option value="tetrahedral">Tetraedro (Suma de Triangulares)</option>
+              <option value="pyramidalSquare">Pirámide Cuadrada (Suma de Cuadrados)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-4 glass-panel p-5 rounded-2xl shadow-xl space-y-4">
+        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <span>🔺</span> Conexión con el Triángulo de Pascal
+        </h3>
+
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs leading-relaxed text-slate-300">
+          <p>
+            Los <strong>Números Tetraédricos</strong> ($Te_n$) representan la acumulación tridimensional de los números triangulares:
+          </p>
+          <div id="katexTetraFormula" class="text-center text-sm text-indigo-300 my-2"></div>
+          <p>
+            En el <strong>Triángulo de Pascal</strong>, estos números corresponden exactamente a la <em>tercera diagonal</em>:
+          </p>
+          <div class="p-2 rounded bg-slate-950 font-mono text-center text-[11px] text-amber-300 space-y-1">
+            <div>1</div>
+            <div>1 &nbsp; 1</div>
+            <div>1 &nbsp; 2 &nbsp; <span class="underline font-bold text-indigo-400">1</span></div>
+            <div>1 &nbsp; 3 &nbsp; <span class="underline font-bold text-indigo-400">3</span> &nbsp; 1</div>
+            <div>1 &nbsp; 4 &nbsp; <span class="underline font-bold text-indigo-400">6</span> &nbsp; 4 &nbsp; 1</div>
+            <div>1 &nbsp; 5 &nbsp; <span class="underline font-bold text-indigo-400">10</span> &nbsp; 10 &nbsp; 5 &nbsp; 1</div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-800/50 text-xs text-indigo-200 space-y-1">
+          <span class="font-bold">✨ Dimensión $d$:</span>
+          <p class="text-[11px] text-indigo-300">
+            Un número figurado en $d$ dimensiones se obtiene sumando los números figurados de dimensión $(d-1)$.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Visual Proofs Without Words -->
+    <section id="proofsScreen" class="hidden grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-7 glass-panel p-5 rounded-2xl shadow-xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-white">Demostraciones Visuais "Sin Palabras"</h2>
+          <div class="flex gap-2">
+            <button onclick="setProof('twoTriangles')" id="btnProof1" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white">
+              $T_{n-1} + T_n = n^2$
+            </button>
+            <button onclick="setProof('oddSum')" id="btnProof2" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300">
+              $\sum \text{Impares} = n^2$
+            </button>
+            <button onclick="setProof('plutarch')" id="btnProof3" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300">
+              $8T_n + 1 = (2n+1)^2$
+            </button>
+          </div>
+        </div>
+
+        <div class="relative w-full aspect-square max-h-[420px] bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center p-2">
+          <canvas id="proofCanvas" class="w-full h-full"></canvas>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span>Desliza para ver la transformación animada:</span>
+          <input id="sliderProofAnim" type="range" min="0" max="100" value="100" oninput="drawProofCanvas()" class="w-1/2 accent-blue-500">
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 glass-panel p-5 rounded-2xl shadow-xl space-y-4">
+        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <span>💡</span> Explicación de la Demostración
+        </h3>
+
+        <div id="proofExplanationBox" class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 leading-relaxed space-y-3">
+          <!-- Dynamic proof text -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quiz & Interactive Challenges -->
+    <section id="quizScreen" class="hidden max-w-3xl mx-auto w-full glass-panel p-6 rounded-2xl shadow-xl space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-900/50 text-yellow-300 border border-yellow-700/50">
+            Desafío Interactivo
+          </span>
+          <h2 class="text-xl font-bold text-white mt-1">Comprueba tus Conocimientos</h2>
+        </div>
+        <div class="text-right">
+          <span class="text-xs text-slate-400">Puntuación</span>
+          <div id="quizScore" class="text-2xl font-black text-yellow-400">0</div>
+        </div>
+      </div>
+
+      <div id="quizBox" class="space-y-4">
+        <div class="flex justify-between items-center text-xs text-slate-400">
+          <span id="quizQuestionNum">Pregunta 1 de 5</span>
+        </div>
+
+        <h3 id="quizQuestionText" class="text-base font-semibold text-white">
+          Cargando pregunta...
+        </h3>
+
+        <div id="quizOptions" class="grid grid-cols-1 gap-2.5 pt-2">
+          <!-- Dynamic options -->
+        </div>
+
+        <div id="quizFeedback" class="hidden p-3.5 rounded-xl text-xs font-medium"></div>
+
+        <div class="flex justify-end pt-2">
+          <button id="btnNextQuiz" onclick="nextQuizQuestion()" class="hidden px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition">
+            Siguiente Pregunta ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: Calculator / Figurate Number Analyzer -->
+    <section id="calculatorScreen" class="hidden max-w-3xl mx-auto w-full glass-panel p-6 rounded-2xl shadow-xl space-y-6">
+      <div>
+        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-900/50 text-emerald-300 border border-emerald-700/50">
+          Herramienta de Análisis
+        </span>
+        <h2 class="text-xl font-bold text-white mt-1">Calculadora & Analizador Poligonal</h2>
+        <p class="text-xs text-slate-400 mt-1">Introduce cualquier entero positivo para verificar si pertenece a alguna familia de números poligonales.</p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input type="number" id="calcInputNumber" value="36" min="1" max="1000000" 
+               class="flex-1 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-base font-bold focus:outline-none focus:border-emerald-500">
+        <button onclick="analyzeNumber()" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 transition">
+          Analizar Número
+        </button>
+      </div>
+
+      <div id="calcResults" class="space-y-3">
+        <!-- Results table injected here -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Info Modal -->
+  <div id="infoModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-panel max-w-xl w-full p-6 rounded-2xl shadow-2xl space-y-4 border border-slate-700 relative">
+      <button onclick="closeInfoModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">✕</button>
+      
+      <h3 class="text-lg font-bold text-white flex items-center gap-2">
+        <span>📖</span> Acerca de los Números Poligonales
+      </h3>
+
+      <div class="text-xs text-slate-300 leading-relaxed space-y-3 max-h-[70vh] overflow-y-auto pr-2">
+        <p>
+          Los <strong>números poligonales</strong> son una subclase de los números figurados estudiados desde la antigüedad por los pitagóricos. Se forman al organizar puntos en patrones geométricos regulares (triángulos, cuadrados, pentágonos, etc.).
+        </p>
+
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-center">
+          <div id="katexModalFormula" class="text-sm text-blue-300"></div>
+          <p class="text-[11px] text-slate-400 mt-1">Fórmula general de Cauchy-Hypsicles para un número de $s$ lados y orden $n$.</p>
+        </div>
+
+        <h4 class="font-bold text-white pt-1">Hitos Históricos Notables:</h4>
+        <ul class="list-disc pl-4 space-y-1 text-slate-400">
+          <li><strong>Tetraktys de Pitágoras:</strong> Representación sagrada del número 10 como el cuarto número triangular ($T_4 = 1+2+3+4 = 10$).</li>
+          <li><strong>Teorema de los Números Poligonales de Fermat (1638):</strong> Todo número entero es suma de a lo sumo $s$ números $s$-gonales. Demostrado por Gauss para triangulares (1796) y Cauchy en general (1813).</li>
+          <li><strong>Teorema del Número Pentagonal de Euler:</strong> Papel fundamental en la teoría de particiones e identidades de series complejas.</li>
+        </ul>
+      </div>
+
+      <div class="pt-2 text-right">
+        <button onclick="closeInfoModal()" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium text-xs">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* JavaScript State Management and Application Logic */
+
+    // Safe KaTeX Helper Functions to eliminate crashes
+    function safeRenderKatex(elementOrId, latexStr, isDisplay = true) {
+      const el = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+      if (!el) return;
+      
+      if (window.katex && typeof window.katex.render === 'function') {
+        try {
+          window.katex.render(latexStr, el, {
+            throwOnError: false,
+            displayMode: isDisplay
+          });
+        } catch (err) {
+          console.warn('KaTeX render error:', err);
+          el.textContent = latexStr;
+        }
+      } else {
+        el.textContent = latexStr;
+      }
+    }
+
+    function renderMath() {
+      try {
+        if (typeof window !== 'undefined' && typeof window.renderMathInElement === 'function') {
+          window.renderMathInElement(document.body, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false }
+            ],
+            throwOnError: false,
+            ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+          });
+        }
+      } catch (err) {
+        console.warn('KaTeX auto-render deferred:', err);
+      }
+    }
+
+    // Web Audio Synthesizer (No external sound files required)
+    let audioCtx = null;
+    function playTone(freq = 440, type = 'sine', duration = 0.1) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    // Polygon Constants & Data Definitions
+    const POLY_DATA = {
+      triangular: {
+        s: 3,
+        name: 'Triangulares',
+        badge: 'Polígono s = 3',
+        title: 'Números Triangulares',
+        color: '#3b82f6', // blue
+        formulaLatex: 'T_n = \\frac{n(n+1)}{2}',
+        gnomonDesc: 'El gnomon de un número triangular $T_n$ es simplemente agregar $n$ puntos en la base del triángulo.',
+        notes: [
+          '• Suma de los primeros $n$ números naturales consecutivos ($1 + 2 + \\dots + n$).',
+          '• La relación con la Tetraktys pitagórica ($T_4 = 10$).',
+          '• La suma de dos números triangulares consecutivos siempre da un número cuadrado ($T_{n-1} + T_n = n^2$).'
+        ]
+      },
+      square: {
+        s: 4,
+        name: 'Cuadrados',
+        badge: 'Polígono s = 4',
+        title: 'Números Cuadrados',
+        color: '#10b981', // emerald
+        formulaLatex: 'C_n = n^2',
+        gnomonDesc: 'El gnomon de un número cuadrado es el $n$-ésimo número impar ($2n - 1$).',
+        notes: [
+          '• Suma de los primeros $n$ números impares impares consecutivos: $1 + 3 + 5 + \\dots + (2n-1) = n^2$.',
+          '• Formado geométricamente agregando dos lados contiguos en forma de L.'
+        ]
+      },
+      pentagonal: {
+        s: 5,
+        name: 'Pentagonales',
+        badge: 'Polígono s = 5',
+        title: 'Números Pentagonales',
+        color: '#f59e0b', // amber
+        formulaLatex: 'P_n = \\frac{3n^2 - n}{2}',
+        gnomonDesc: 'El gnomon pentagonal añade $3n - 2$ puntos en tres nuevos bordes exteriores.',
+        notes: [
+          '• Aparecen en el Teorema del Número Pentagonal de Euler sobre particiones de enteros.',
+          '• Cada número pentagonal es $1/3$ de un número triangular de posición $3n-1$.'
+        ]
+      },
+      hexagonal: {
+        s: 6,
+        name: 'Hexagonales',
+        badge: 'Polígono s = 6',
+        title: 'Números Hexagonales',
+        color: '#ec4899', // pink
+        formulaLatex: 'H_n = 2n^2 - n',
+        gnomonDesc: 'El gnomon hexagonal añade $4n - 3$ puntos en cuatro nuevos bordes exteriores.',
+        notes: [
+          '• Todo número hexagonal es también un número triangular de índice impar: $H_n = T_{2n-1}$.'
+        ]
+      },
+      general: {
+        s: 5,
+        name: 'General',
+        badge: 'Polígono s-Gonal',
+        title: 'Número s-Gonal',
+        color: '#8b5cf6', // purple
+        formulaLatex: 'P_n^{(s)} = \\frac{(s-2)n^2 - (s-4)n}{2}',
+        gnomonDesc: 'El gnomon general para un polígono de $s$ lados añade $(s-2)n - (s-3)$ puntos.',
+        notes: [
+          '• Fórmula unificada de Cauchy-Hypsicles válida para todo $s \\ge 3$.'
+        ]
+      }
+    };
+
+    // State Variables
+    let currentState = {
+      tab: 'triangular',
+      s: 3,
+      n: 4,
+      animProgress: 1.0,
+      animating: false
+    };
+
+    // Mathematical Core Formulas
+    function calcPolygonal(s, n) {
+      if (n <= 0) return 0;
+      return ((s - 2) * n * n - (s - 4) * n) / 2;
+    }
+
+    function calcGnomon(s, n) {
+      if (n <= 1) return 1;
+      return (s - 2) * n - (s - 3);
+    }
+
+    function switchTab(tabKey) {
+      currentState.tab = tabKey;
+      playTone(400, 'sine', 0.05);
+
+      // Update Nav Tab Styles
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.classList.remove('tab-active');
+      });
+      const activeBtn = document.getElementById(`tab-${tabKey}`);
+      if (activeBtn) activeBtn.classList.add('tab-active');
+
+      // Hide all screen sections
+      document.getElementById('polygonScreen').classList.add('hidden');
+      document.getElementById('multidimScreen').classList.add('hidden');
+      document.getElementById('proofsScreen').classList.add('hidden');
+      document.getElementById('quizScreen').classList.add('hidden');
+      document.getElementById('calculatorScreen').classList.add('hidden');
+
+      // Show selected screen section
+      if (['triangular', 'square', 'pentagonal', 'hexagonal', 'general'].includes(tabKey)) {
+        document.getElementById('polygonScreen').classList.remove('hidden');
+
+        if (tabKey === 'general') {
+          document.getElementById('generalSideControl').classList.remove('hidden');
+          currentState.s = parseInt(document.getElementById('sliderS').value);
+        } else {
+          document.getElementById('generalSideControl').classList.add('hidden');
+          currentState.s = POLY_DATA[tabKey].s;
+        }
+
+        updatePolygonScreenUI();
+        drawPolygonCanvas();
+
+      } else if (tabKey === 'multidim') {
+        document.getElementById('multidimScreen').classList.remove('hidden');
+        if (!threeScene) init3DScene();
+        else update3DScene(document.getElementById('slider3D').value);
+
+      } else if (tabKey === 'proofs') {
+        document.getElementById('proofsScreen').classList.remove('hidden');
+        drawProofCanvas();
+
+      } else if (tabKey === 'quiz') {
+        document.getElementById('quizScreen').classList.remove('hidden');
+        renderQuizQuestion();
+
+      } else if (tabKey === 'calculator') {
+        document.getElementById('calculatorScreen').classList.remove('hidden');
+        analyzeNumber();
+      }
+
+      renderMath();
+    }
+
+    function updatePolygonScreenUI() {
+      const data = (currentState.tab === 'general') ? POLY_DATA.general : POLY_DATA[currentState.tab];
+      const s = currentState.s;
+      const n = currentState.n;
+
+      const val = calcPolygonal(s, n);
+      const gnomon = calcGnomon(s, n);
+
+      document.getElementById('screenBadge').innerText = (currentState.tab === 'general') ? `Polígono s = ${s}` : data.badge;
+      document.getElementById('screenBadge').style.borderColor = data.color;
+      document.getElementById('screenBadge').style.color = data.color;
+
+      document.getElementById('screenTitle').innerText = (currentState.tab === 'general') ? `Polígono de ${s} Lados` : data.title;
+      document.getElementById('currentNBadge').innerText = `P_${n}`;
+      document.getElementById('currentValueDisplay').innerText = val;
+      document.getElementById('sliderNValue').innerText = `n = ${n}`;
+
+      if (currentState.tab === 'general') {
+        document.getElementById('sliderSValue').innerText = `s = ${s}`;
+      }
+
+      // Render formulas cleanly
+      let formulaStr = data.formulaLatex;
+      if (currentState.tab === 'general') {
+        formulaStr = `P_{${n}}^{(${s})} = \\frac{(${s}-2)(${n})^2 - (${s}-4)(${n})}{2} = ${val}`;
+      }
+      safeRenderKatex('katexFormula', formulaStr, true);
+      document.getElementById('katexExpanded').innerText = `P_${n} = ${val}`;
+
+      document.getElementById('gnomonDisplay').innerText = `+${gnomon} puntos`;
+      document.getElementById('recurrenceDisplay').innerText = `P_${n-1} (${val - gnomon}) + ${gnomon} = ${val}`;
+      document.getElementById('gnomonDescription').innerText = data.gnomonDesc;
+
+      // Update Notes
+      const notesContainer = document.getElementById('propertyNotes');
+      notesContainer.innerHTML = data.notes.map(note => `<div class="p-2 rounded bg-slate-900/60 border border-slate-800/80">${note}</div>`).join('');
+
+      // Update sequence pills
+      const pillsContainer = document.getElementById('sequencePills');
+      let pillsHtml = '';
+      for (let i = 1; i <= 10; i++) {
+        const v = calcPolygonal(s, i);
+        const isActive = (i === n);
+        pillsHtml += `<span class="px-2 py-1 rounded ${isActive ? 'bg-blue-600 text-white font-bold' : 'bg-slate-800 text-slate-400'}">${v}</span>`;
+      }
+      pillsContainer.innerHTML = pillsHtml;
+
+      renderMath();
+    }
+
+    function onNChange(val) {
+      currentState.n = parseInt(val);
+      playTone(300 + currentState.n * 25, 'sine', 0.04);
+      updatePolygonScreenUI();
+      drawPolygonCanvas();
+    }
+
+    function onSChange(val) {
+      currentState.s = parseInt(val);
+      playTone(250 + currentState.s * 20, 'triangle', 0.04);
+      updatePolygonScreenUI();
+      drawPolygonCanvas();
+    }
+
+    function animateConstruction() {
+      if (currentState.animating) return;
+      currentState.animating = true;
+      currentState.animProgress = 0;
+      let startTime = null;
+      const duration = 800; // ms
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        currentState.animProgress = Math.min(elapsed / duration, 1.0);
+        drawPolygonCanvas();
+
+        if (currentState.animProgress < 1.0) {
+          requestAnimationFrame(step);
+        } else {
+          currentState.animating = false;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* Canvas 2D Rendering for Polygonal Shapes */
+    function drawPolygonCanvas() {
+      const canvas = document.getElementById('polyCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width;
+      const height = rect.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const s = currentState.s;
+      const n = currentState.n;
+      const showGnomon = document.getElementById('chkShowGnomon').checked;
+      const showGrid = document.getElementById('chkShowGrid').checked;
+
+      // Color Palette for Gnomon layers
+      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316', '#a855f7', '#6366f1', '#14b8a6', '#ef4444', '#84cc16'];
+
+      // Generate Point Coordinates level by level
+      let layers = [];
+      const baseRadius = Math.min(width, height) * 0.38 / Math.max(n, 2);
+
+      if (s === 3) {
+        // Triangular Grid Alignment
+        const h = baseRadius * Math.sin(Math.PI / 3);
+        const startY = centerY + (n * h) / 2 - h / 2;
+        for (let row = 1; row <= n; row++) {
+          let layerPoints = [];
+          const rowY = startY - (row - 1) * h;
+          const rowStartX = centerX - ((row - 1) * baseRadius) / 2;
+          for (let col = 0; col < row; col++) {
+            layerPoints.push({
+              x: rowStartX + col * baseRadius,
+              y: rowY
+            });
+          }
+          layers.push(layerPoints);
+        }
+      } else if (s === 4) {
+        // Square Grid Alignment
+        const startX = centerX - ((n - 1) * baseRadius) / 2;
+        const startY = centerY - ((n - 1) * baseRadius) / 2;
+        
+        for (let level = 1; level <= n; level++) {
+          let layerPoints = [];
+          if (level === 1) {
+            layerPoints.push({ x: startX, y: startY });
+          } else {
+            // L-shaped gnomon
+            for (let i = 0; i < level; i++) {
+              layerPoints.push({ x: startX + (level - 1) * baseRadius, y: startY + i * baseRadius });
+            }
+            for (let j = 0; j < level - 1; j++) {
+              layerPoints.push({ x: startX + j * baseRadius, y: startY + (level - 1) * baseRadius });
+            }
+          }
+          layers.push(layerPoints);
+        }
+      } else {
+        // General Regular s-Gonal Radial Expansion from Vertex
+        const angleStep = (2 * Math.PI) / s;
+        const originX = centerX - (n * baseRadius * 0.3);
+        const originY = centerY + (n * baseRadius * 0.3);
+
+        for (let level = 1; level <= n; level++) {
+          let layerPoints = [];
+          if (level === 1) {
+            layerPoints.push({ x: originX, y: originY });
+          } else {
+            // Build vertices for level
+            let vertices = [];
+            for (let i = 0; i < s; i++) {
+              const angle = i * angleStep - Math.PI / 2;
+              const r = (level - 1) * baseRadius * 1.2;
+              vertices.push({
+                x: originX + r * Math.cos(angle) + r * 0.5,
+                y: originY + r * Math.sin(angle)
+              });
+            }
+            // Interpolate points along edges
+            for (let i = 0; i < s - 1; i++) {
+              const v1 = vertices[i];
+              const v2 = vertices[(i + 1) % s];
+              const ptsOnEdge = (i === 0) ? level - 1 : level - 1;
+              for (let k = (i === 0 ? 0 : 1); k < level; k++) {
+                const t = k / (level - 1);
+                layerPoints.push({
+                  x: v1.x + t * (v2.x - v1.x),
+                  y: v1.y + t * (v2.y - v1.y)
+                });
+              }
+            }
+          }
+          layers.push(layerPoints);
+        }
+      }
+
+      // Draw Grid/Edge Lines if enabled
+      if (showGrid) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1.5;
+        layers.forEach(layer => {
+          ctx.beginPath();
+          layer.forEach((pt, idx) => {
+            if (idx === 0) ctx.moveTo(pt.x, pt.y);
+            else ctx.lineTo(pt.x, pt.y);
+          });
+          ctx.stroke();
+        });
+      }
+
+      // Render Points Layer by Layer
+      const pointRadius = Math.max(5, Math.min(12, 16 - n));
+      const totalLayersToRender = Math.ceil(layers.length * currentState.animProgress);
+
+      layers.forEach((layer, layerIdx) => {
+        if (layerIdx >= totalLayersToRender) return;
+
+        const isGnomon = (layerIdx === layers.length - 1);
+        const pointColor = showGnomon ? colors[layerIdx % colors.length] : '#3b82f6';
+
+        layer.forEach(pt => {
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pointRadius, 0, Math.PI * 2);
+          
+          if (showGnomon && isGnomon) {
+            ctx.fillStyle = pointColor;
+            ctx.shadowColor = pointColor;
+            ctx.shadowBlur = 12;
+          } else {
+            ctx.fillStyle = pointColor;
+            ctx.shadowBlur = 0;
+          }
+          ctx.fill();
+
+          // Inner highlight border
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#ffffff';
+          ctx.stroke();
+        });
+      });
+      ctx.shadowBlur = 0;
+    }
+
+    /* Three.js 3D Multidimensional Visualizer */
+    let threeScene, threeCamera, threeRenderer, sphereGroup;
+
+    function init3DScene() {
+      const container = document.getElementById('threeContainer');
+      if (!container) return;
+
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      threeScene = new THREE.Scene();
+      threeScene.background = new THREE.Color(0x020617);
+
+      threeCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+      threeCamera.position.set(0, 10, 20);
+
+      threeRenderer = new THREE.WebGLRenderer({ antialias: true });
+      threeRenderer.setSize(width, height);
+      threeRenderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(threeRenderer.domElement);
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      threeScene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0x38bdf8, 0.8);
+      dirLight.position.set(10, 20, 15);
+      threeScene.add(dirLight);
+
+      const pointLight = new THREE.PointLight(0x818cf8, 1, 50);
+      pointLight.position.set(-10, -10, -10);
+      threeScene.add(pointLight);
+
+      sphereGroup = new THREE.Group();
+      threeScene.add(sphereGroup);
+
+      // Mouse drag rotation controls
+      let isDragging = false;
+      let previousMousePosition = { x: 0, y: 0 };
+
+      container.addEventListener('mousedown', e => {
+        isDragging = true;
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - previousMousePosition.x;
+        const deltaY = e.clientY - previousMousePosition.y;
+
+        sphereGroup.rotation.y += deltaX * 0.01;
+        sphereGroup.rotation.x += deltaY * 0.01;
+
+        previousMousePosition = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('mouseup', () => isDragging = false);
+
+      update3DScene(document.getElementById('slider3D').value);
+      animate3D();
+    }
+
+    function update3DScene(val) {
+      const n = parseInt(val);
+      document.getElementById('val3DN').innerText = n;
+      if (!sphereGroup) return;
+
+      // Clear existing spheres
+      while (sphereGroup.children.length > 0) {
+        sphereGroup.remove(sphereGroup.children[0]);
+      }
+
+      const shapeType = document.getElementById('select3DShape').value;
+      const sphereRadius = 0.45;
+      const spacing = 1.0;
+
+      const sphereGeo = new THREE.SphereGeometry(sphereRadius, 24, 24);
+
+      if (shapeType === 'tetrahedral') {
+        // Tetrahedral Pyramid (Sum of Triangular numbers)
+        for (let layer = 1; layer <= n; layer++) {
+          const rowCount = layer;
+          const y = (n - layer) * spacing * 0.85;
+          const hue = 0.55 + (layer / n) * 0.25; // Color gradient
+          const mat = new THREE.MeshStandardMaterial({
+            color: new THREE.Color().setHSL(hue, 0.8, 0.5),
+            roughness: 0.3,
+            metalness: 0.2
+          });
+
+          for (let r = 0; r < rowCount; r++) {
+            for (let c = 0; c <= r; c++) {
+              const mesh = new THREE.Mesh(sphereGeo, mat);
+              const x = (c - r / 2) * spacing;
+              const z = (r - rowCount / 2) * spacing;
+              mesh.position.set(x, y - (n * spacing) / 3, z);
+              sphereGroup.add(mesh);
+            }
+          }
+        }
+      } else {
+        // Square Pyramid (Sum of Square numbers)
+        for (let layer = 1; layer <= n; layer++) {
+          const side = layer;
+          const y = (n - layer) * spacing * 0.85;
+          const mat = new THREE.MeshStandardMaterial({
+            color: new THREE.Color().setHSL(0.35 + (layer / n) * 0.3, 0.8, 0.5),
+            roughness: 0.3,
+            metalness: 0.2
+          });
+
+          for (let r = 0; r < side; r++) {
+            for (let c = 0; c < side; c++) {
+              const mesh = new THREE.Mesh(sphereGeo, mat);
+              const x = (c - (side - 1) / 2) * spacing;
+              const z = (r - (side - 1) / 2) * spacing;
+              mesh.position.set(x, y - (n * spacing) / 3, z);
+              sphereGroup.add(mesh);
+            }
+          }
+        }
+      }
+
+      // Render KaTeX formula for Tetrahedral
+      const tetraVal = (n * (n + 1) * (n + 2)) / 6;
+      safeRenderKatex('katexTetraFormula', `Te_{${n}} = \\frac{${n}(${n}+1)(${n}+2)}{6} = ${tetraVal}`, true);
+    }
+
+    function update3DShape(val) {
+      update3DScene(document.getElementById('slider3D').value);
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      if (sphereGroup && !threeScene) return;
+      if (sphereGroup) sphereGroup.rotation.y += 0.003;
+      if (threeRenderer && threeScene && threeCamera) {
+        threeRenderer.render(threeScene, threeCamera);
+      }
+    }
+
+    /* Visual Proofs Without Words Canvas Renderer */
+    let currentProof = 'twoTriangles';
+
+    function setProof(proofKey) {
+      currentProof = proofKey;
+      ['btnProof1', 'btnProof2', 'btnProof3'].forEach(id => {
+        document.getElementById(id).className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300';
+      });
+
+      if (proofKey === 'twoTriangles') document.getElementById('btnProof1').className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white';
+      if (proofKey === 'oddSum') document.getElementById('btnProof2').className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white';
+      if (proofKey === 'plutarch') document.getElementById('btnProof3').className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white';
+
+      drawProofCanvas();
+    }
+
+    function drawProofCanvas() {
+      const canvas = document.getElementById('proofCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width;
+      const height = rect.height;
+      ctx.clearRect(0, 0, width, height);
+
+      const progress = parseInt(document.getElementById('sliderProofAnim').value) / 100;
+      const expBox = document.getElementById('proofExplanationBox');
+
+      if (currentProof === 'twoTriangles') {
+        // T_{n-1} + T_n = n^2
+        expBox.innerHTML = `
+          <strong>Demostración: $T_{n-1} + T_n = n^2$</strong><br/>
+          Al juntar el número triangular de orden $n-1$ (en rosa) con el número triangular de orden $n$ (en azul), encajan perfectamente formando un cuadrado perfecto $n \\times n$.
+        `;
+
+        const n = 5;
+        const spacing = 32;
+        const startX = (width - n * spacing) / 2 + 16;
+        const startY = (height - n * spacing) / 2 + 16;
+
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            ctx.beginPath();
+            const ptX = startX + c * spacing;
+            const ptY = startY + r * spacing;
+
+            if (c <= r) {
+              // T_n (Blue)
+              ctx.arc(ptX, ptY, 10, 0, Math.PI * 2);
+              ctx.fillStyle = '#3b82f6';
+            } else {
+              // T_{n-1} (Pink)
+              const offsetX = (1 - progress) * 60;
+              ctx.arc(ptX + offsetX, ptY, 10, 0, Math.PI * 2);
+              ctx.fillStyle = '#ec4899';
+            }
+            ctx.fill();
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+          }
+        }
+
+      } else if (currentProof === 'oddSum') {
+        // Odd sum = Square
+        expBox.innerHTML = `
+          <strong>Demostración: $\\sum_{k=1}^n (2k-1) = n^2$</strong><br/>
+          Cada gnomon de un cuadrado es una capa en forma de L que contiene un número impar de puntos. Anidando los impares $1, 3, 5, 7, \\dots$ se obtiene $n^2$.
+        `;
+
+        const n = 5;
+        const spacing = 30;
+        const startX = (width - n * spacing) / 2 + 15;
+        const startY = (height - n * spacing) / 2 + 15;
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+
+        for (let k = 1; k <= n; k++) {
+          const color = colors[k - 1];
+          const opacity = (k / n <= progress + 0.2) ? 1.0 : 0.15;
+          ctx.globalAlpha = opacity;
+
+          for (let r = 0; r < k; r++) {
+            for (let c = 0; c < k; c++) {
+              if (r === k - 1 || c === k - 1) {
+                ctx.beginPath();
+                ctx.arc(startX + c * spacing, startY + r * spacing, 9, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+              }
+            }
+          }
+        }
+        ctx.globalAlpha = 1.0;
+
+      } else if (currentProof === 'plutarch') {
+        // Plutarch: 8 Tn + 1 = (2n+1)^2
+        expBox.innerHTML = `
+          <strong>Teorema de Plutarco: $8 T_n + 1 = (2n+1)^2$</strong><br/>
+          Combinando 8 copias idénticas del triángulo $T_n$ dispuestas alrededor de 1 punto central, se obtiene un cuadrado de lado $(2n+1)$.
+        `;
+
+        const n = 3;
+        const totalSide = 2 * n + 1;
+        const spacing = 26;
+        const startX = (width - totalSide * spacing) / 2 + 13;
+        const startY = (height - totalSide * spacing) / 2 + 13;
+
+        // Central dot
+        ctx.beginPath();
+        ctx.arc(startX + n * spacing, startY + n * spacing, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // 8 surrounding triangles
+        const opacity = 0.2 + progress * 0.8;
+        ctx.globalAlpha = opacity;
+
+        for (let r = 0; r < totalSide; r++) {
+          for (let c = 0; c < totalSide; c++) {
+            if (r === n && c === n) continue;
+            ctx.beginPath();
+            ctx.arc(startX + c * spacing, startY + r * spacing, 7, 0, Math.PI * 2);
+            ctx.fillStyle = ((r + c) % 2 === 0) ? '#8b5cf6' : '#ec4899';
+            ctx.fill();
+          }
+        }
+        ctx.globalAlpha = 1.0;
+      }
+
+      renderMath();
+    }
+
+    /* Interactive Quiz Logic */
+    const QUIZ_QUESTIONS = [
+      {
+        question: '¿Cuál es el valor del 5.º número triangular (T₅)?',
+        options: ['10', '15', '20', '25'],
+        correct: 1,
+        explanation: 'T₅ = 1 + 2 + 3 + 4 + 5 = 15. Usando la fórmula: 5 × 6 / 2 = 15.'
+      },
+      {
+        question: '¿Qué número figurado resulta siempre de la suma de dos números triangulares consecutivos T_{n-1} + T_n?',
+        options: ['Un número pentagonal', 'Un número primo', 'Un número cuadrado (n²)', 'Un número hexagonal'],
+        correct: 2,
+        explanation: 'Efectivamente, dos triángulos consecutivos encajan siempre para formar un cuadrado n².'
+      },
+      {
+        question: '¿Cuál es el gnomon (capa incrementada) de un número cuadrado C_n?',
+        options: ['El n-ésimo número par', 'El n-ésimo número impar (2n - 1)', 'El número triangular T_n', 'Un valor constante de 4'],
+        correct: 1,
+        explanation: 'El gnomon de un cuadrado son los impares consecutivos: 1, 3, 5, 7, ...'
+      },
+      {
+        question: '¿Qué relación existe entre los números hexagonales H_n y los triangulares T_k?',
+        options: ['H_n = T_{2n-1}', 'H_n = 2 × T_n', 'H_n = T_n + 6', 'No tienen relación'],
+        correct: 0,
+        explanation: 'Todo número hexagonal H_n es equivalente al número triangular de índice impar T_{2n-1}.'
+      },
+      {
+        question: 'Según la fórmula de Cauchy-Hypsicles, ¿cuál es el valor de P₄ font para s=5 (Pentagonal)?',
+        options: ['12', '22', '35', '51'],
+        correct: 1,
+        explanation: 'P₄^(5) = (3 × 4² - 4) / 2 = (48 - 4) / 2 = 22.'
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let quizScore = 0;
+
+    function renderQuizQuestion() {
+      if (currentQuizIndex >= QUIZ_QUESTIONS.length) {
+        // Quiz Completed
+        document.getElementById('quizBox').innerHTML = `
+          <div class="text-center py-8 space-y-4">
+            <div class="text-4xl">🎉</div>
+            <h3 class="text-2xl font-bold text-white">¡Desafío Completado!</h3>
+            <p class="text-sm text-slate-300">Has obtenido <span class="text-yellow-400 font-bold">${quizScore}</span> de ${QUIZ_QUESTIONS.length * 10} puntos posibles.</p>
+            <button onclick="resetQuiz()" class="px-5 py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg transition">
+              Volver a Intentar
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      document.getElementById('quizQuestionNum').innerText = `Pregunta ${currentQuizIndex + 1} de ${QUIZ_QUESTIONS.length}`;
+      document.getElementById('quizQuestionText').innerText = q.question;
+
+      const optContainer = document.getElementById('quizOptions');
+      optContainer.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-yellow-500/50 text-left text-xs text-slate-200 transition font-medium';
+        btn.innerHTML = `<span class="inline-block w-5 h-5 rounded-full bg-slate-800 text-center font-bold text-yellow-400 mr-2">${String.fromCharCode(65 + idx)}</span> ${opt}`;
+        btn.onclick = () => checkAnswer(idx);
+        optContainer.appendChild(btn);
+      });
+
+      document.getElementById('quizFeedback').className = 'hidden';
+      document.getElementById('btnNextQuiz').classList.add('hidden');
+
+      renderMath();
+    }
+
+    function checkAnswer(selectedIdx) {
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      const feedback = document.getElementById('quizFeedback');
+      const buttons = document.querySelectorAll('#quizOptions button');
+
+      buttons.forEach(b => b.disabled = true);
+
+      if (selectedIdx === q.correct) {
+        quizScore += 10;
+        playTone(587.33, 'triangle', 0.2);
+        document.getElementById('quizScore').innerText = quizScore;
+        buttons[selectedIdx].classList.add('border-emerald-500', 'bg-emerald-950/40');
+        feedback.className = 'p-3.5 rounded-xl text-xs font-medium bg-emerald-950/80 border border-emerald-800 text-emerald-300 block';
+        feedback.innerHTML = `✔ ${q.explanation}`;
+      } else {
+        playTone(220, 'sawtooth', 0.25);
+        buttons[selectedIdx].classList.add('border-red-500', 'bg-red-950/40');
+        buttons[q.correct].classList.add('border-emerald-500', 'bg-emerald-950/40');
+        feedback.className = 'p-3.5 rounded-xl text-xs font-medium bg-red-950/80 border border-red-800 text-red-300 block';
+        feedback.innerHTML = `✘ Incorrecto. ${q.explanation}`;
+      }
+
+      document.getElementById('btnNextQuiz').classList.remove('hidden');
+      renderMath();
+    }
+
+    function nextQuizQuestion() {
+      currentQuizIndex++;
+      renderQuizQuestion();
+    }
+
+    function resetQuiz() {
+      currentQuizIndex = 0;
+      quizScore = 0;
+      document.getElementById('quizScore').innerText = 0;
+      renderQuizQuestion();
+    }
+
+    /* Calculator / Figurate Number Analyzer */
+    function analyzeNumber() {
+      const inputVal = parseInt(document.getElementById('calcInputNumber').value);
+      const resultsContainer = document.getElementById('calcResults');
+
+      if (isNaN(inputVal) || inputVal <= 0) {
+        resultsContainer.innerHTML = `<div class="p-4 rounded-xl bg-red-950/50 border border-red-800 text-red-300 text-xs">Por favor introduce un entero positivo válido.</div>`;
+        return;
+      }
+
+      let matches = [];
+
+      for (let s = 3; s <= 12; s++) {
+        // Solve (s-2)n^2 - (s-4)n - 2N = 0 for n
+        const a = s - 2;
+        const b = -(s - 4);
+        const c = -2 * inputVal;
+
+        const discriminant = b * b - 4 * a * c;
+        if (discriminant >= 0) {
+          const sqrtD = Math.sqrt(discriminant);
+          const n = (-b + sqrtD) / (2 * a);
+          if (Number.isInteger(n) && n > 0) {
+            matches.push({ s, n, name: getPolygonName(s) });
+          }
+        }
+      }
+
+      let html = `
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Resultados del análisis para N = <span class="text-emerald-400 font-mono text-sm">${inputVal}</span>:</h4>
+      `;
+
+      if (matches.length > 0) {
+        html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">`;
+        matches.forEach(m => {
+          html += `
+            <div class="p-3 rounded-lg bg-slate-950 border border-emerald-500/30 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-white">${m.name}</span>
+                <span class="text-[11px] text-slate-400 block">Polígono de ${m.s} lados</span>
+              </div>
+              <span class="px-2.5 py-1 rounded bg-emerald-900/60 text-emerald-300 font-mono font-bold">P_${m.n}</span>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      } else {
+        html += `<p class="text-xs text-slate-400">El número ${inputVal} no es un número poligonal exacto para $s \\in [3, 12]$.</p>`;
+      }
+
+      html += `</div>`;
+      resultsContainer.innerHTML = html;
+      renderMath();
+    }
+
+    function getPolygonName(s) {
+      const names = {
+        3: 'Triangular',
+        4: 'Cuadrado',
+        5: 'Pentagonal',
+        6: 'Hexagonal',
+        7: 'Heptagonal',
+        8: 'Octogonal',
+        9: 'Eneagonal',
+        10: 'Decagonal',
+        11: 'Endecagonal',
+        12: 'Dodecagonal'
+      };
+      return names[s] || `Polígono (${s} lados)`;
+    }
+
+    function showInfoModal() {
+      document.getElementById('infoModal').classList.remove('hidden');
+      safeRenderKatex('katexModalFormula', "P_n^{(s)} = \\frac{(s-2)n^2 - (s-4)n}{2}", true);
+      renderMath();
+    }
+
+    function closeInfoModal() {
+      document.getElementById('infoModal').classList.add('hidden');
+    }
+
+    // Window Resize Handler
+    window.addEventListener('resize', () => {
+      if (!document.getElementById('polygonScreen').classList.contains('hidden')) {
+        drawPolygonCanvas();
+      }
+      if (threeRenderer && !document.getElementById('multidimScreen').classList.contains('hidden')) {
+        const container = document.getElementById('threeContainer');
+        threeCamera.aspect = container.clientWidth / container.clientHeight;
+        threeCamera.updateProjectionMatrix();
+        threeRenderer.setSize(container.clientWidth, container.clientHeight);
+        threeRenderer.render(threeScene, threeCamera);
+      }
+      if (!document.getElementById('proofsScreen').classList.contains('hidden')) {
+        drawProofCanvas();
+      }
+    });
+
+    window.onload = function() {
+      // Deep-linking desde accesos directos de la PWA: ?tab=triangular|square|...
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const requestedTab = params.get('tab');
+        const validTabs = ['triangular','square','pentagonal','hexagonal','general','multidim','proofs','quiz','calculator'];
+        const initialTab = validTabs.includes(requestedTab) ? requestedTab : 'triangular';
+        switchTab(initialTab);
+      } catch (e) {
+        switchTab('triangular');
+      }
+      renderMath();
+    };
+
+    /* ====================================================================
+       PWA — Registro del Service Worker
+       El SW está en ./sw.js (mismo directorio que index.html), por lo que
+       su scope es automáticamente ./  y NO interfiere con el portal raíz
+       (tecdea.github.io) ni con otros proyectos del dominio.
+       ==================================================================== */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then((reg) => {
+            console.log('[PWA] Service Worker registrado. Scope:', reg.scope);
+            // Detectar actualizaciones y notificar a la página para recargar.
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (!newWorker) return;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // Hay una nueva versión: forzar activación y recargar.
+                  newWorker.postMessage('SKIP_WAITING');
+                  navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    window.location.reload();
+                  }, { once: true });
+                }
+              });
+            });
+          })
+          .catch((err) => {
+            console.warn('[PWA] No se pudo registrar el Service Worker:', err);
+          });
+      });
+
+      // Listener opcional para mensajes del SW.
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data === 'RELOAD') window.location.reload();
+      });
+    }
+
+    // iOS: detección de modo standalone para mostrar/ocultar hints de instalación.
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                         window.navigator.standalone === true;
+    if (isStandalone) {
+      document.documentElement.classList.add('pwa-standalone');
+    }
+  </script>
+</body>
+</html>
