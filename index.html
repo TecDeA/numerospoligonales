@@ -2,14 +2,19 @@
 <html lang="es" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Viewport responsivo: width=device-width + initial-scale 1 + viewport-fit=cover
+       para soportar notch (safe-area-insets en iOS y Android). -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+  <!-- Bloquear zoom accidental en input de iOS (mejora UX en formularios) -->
+  <meta name="format-detection" content="telephone=no">
 
   <!-- ============ PWA / SEO Meta ============ -->
   <title>Números Poligonales y Figurados: De la Geometría a la Multidimensionalidad</title>
   <meta name="description" content="Explora los números poligonales y figurados (triangulares, cuadrados, pentagonales, hexagonales), visualizaciones 3D multidimensionales, demostraciones visuales sin palabras, desafíos y una calculadora poligonal. App instalable (PWA).">
   <meta name="author" content="Tecdea">
-  <meta name="theme-color" content="#2563eb">
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0f19" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="dark light">
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="./manifest.json">
@@ -29,10 +34,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Números Poligonales">
   <meta name="application-name" content="Números Poligonales">
+  <!-- iOS: soporte para Display P3 (colores amplios) -->
+  <meta name="supported-color-space" content="display-p3">
 
   <!-- Microsoft Tiles -->
   <meta name="msapplication-TileColor" content="#2563eb">
   <meta name="msapplication-tap-highlight" content="no">
+  <meta name="msapplication-navbutton-color" content="#0b0f19">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -65,6 +73,16 @@
               600: '#2563eb',
               900: '#1e3a8a',
             }
+          },
+          // Breakpoints adicionales para multiplataforma
+          screens: {
+            'xs': '390px',   // iPhone Pro Max en retrato
+            'sm': '640px',
+            'md': '768px',   // tablets pequeñas
+            'lg': '1024px',  // tablets grandes / laptops
+            'xl': '1280px',
+            '2xl': '1536px',
+            'foldable': { 'raw': '(min-width: 548px) and (max-width: 845px)' },
           }
         }
       }
@@ -85,42 +103,248 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
+    /* ============================================================
+       BASE RESPONSIVE — tipografía y espaciado fluidos
+       ============================================================ */
+    :root {
+      /* Safe-area insets para notch/Dynamic Island/esquinas redondeadas */
+      --safe-top:    env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left:   env(safe-area-inset-left, 0px);
+      --safe-right:  env(safe-area-inset-right, 0px);
+
+      /* Tamaños de fuente fluidos con clamp() */
+      --fs-xs:   clamp(0.6875rem, 0.66rem + 0.13vw, 0.75rem);     /* 11-12px */
+      --fs-sm:   clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);      /* 12-14px */
+      --fs-base: clamp(0.875rem, 0.84rem + 0.18vw, 1rem);         /* 14-16px */
+      --fs-lg:   clamp(1rem, 0.96rem + 0.22vw, 1.125rem);         /* 16-18px */
+      --fs-xl:   clamp(1.125rem, 1.06rem + 0.35vw, 1.25rem);      /* 18-20px */
+      --fs-2xl:  clamp(1.25rem, 1.15rem + 0.55vw, 1.5rem);        /* 20-24px */
+    }
+
+    html {
+      /* Scroll suave al cambiar de pestaña */
+      scroll-behavior: smooth;
+      /* Soporte para texto que no se escala con zoom del usuario
+         (accesibilidad: respetar prefers-reduced-motion) */
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+                   'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background-color: #0b0f19;
       color: #f3f4f6;
+      font-size: var(--fs-base);
+      line-height: 1.5;
+      /* Safe-area insets aplicados al body para que el contenido
+         no quede tapado por el notch ni por la barra de navegación
+         del navegador en modo standalone. */
+      padding-left:   var(--safe-left);
+      padding-right:  var(--safe-right);
+      /* Mejor renderizado de texto en pantallas HiDPI */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
+
+    /* Aplicar tamaños fluidos a las utilidades Tailwind más usadas */
+    h1 { font-size: var(--fs-lg); }
+    h2 { font-size: var(--fs-xl); }
+    h3 { font-size: var(--fs-base); }
+    .text-xs   { font-size: var(--fs-xs); }
+    .text-sm   { font-size: var(--fs-sm); }
+    .text-base { font-size: var(--fs-base); }
+    .text-lg   { font-size: var(--fs-lg); }
+    .text-xl   { font-size: var(--fs-xl); }
+    .text-2xl  { font-size: var(--fs-2xl); }
+
+    /* Glass panel con fallback si backdrop-filter no está soportado */
     .glass-panel {
-      background: rgba(17, 24, 39, 0.75);
+      background: rgba(17, 24, 39, 0.85); /* más opaco en navegadores antiguos */
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    @supports (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px)) {
+      .glass-panel {
+        background: rgba(17, 24, 39, 0.75);
+      }
     }
     .glass-card {
       background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .nav-tab {
       transition: all 0.2s ease-in-out;
+      /* Touch target mínimo de 44px (recomendación WCAG 2.5.5).
+         En escritorio queda igual porque la altura se ajusta con
+         el contenido, pero garantizamos el mínimo en móvil. */
+      min-height: 36px;
+    }
+    @media (pointer: coarse) {
+      .nav-tab {
+        min-height: 44px;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
     }
     .nav-tab.tab-active {
       background-color: #2563eb;
       color: #ffffff;
       box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
     }
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
+
+    /* ============================================================
+       SLIDERS responsive — más gruesos en táctil para mejor precisión
+       ============================================================ */
+    input[type="range"] {
       height: 6px;
     }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
+    @media (pointer: coarse) {
+      input[type="range"] {
+        height: 10px;
+        /* Thumb más grande para dedo */
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+      }
     }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 3px;
+
+    /* ============================================================
+       CANVAS responsive — se redimensionan con su contenedor
+       ============================================================ */
+    canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
+
+    /* ============================================================
+       SCROLLBARS — ocultos visualmente pero funcionales en táctil;
+       visibles y finos en escritorio
+       ============================================================ */
+    @media (pointer: fine) {
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+    }
+    @media (pointer: coarse) {
+      /* En móvil ocultar scrollbars (el scroll táctil funciona igual) */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      * {
+        scrollbar-width: none;
+      }
+    }
+
+    /* ============================================================
+       SAFE-AREA — el header y el modal respetan el notch
+       ============================================================ */
+    header.sticky {
+      padding-top: max(0.625rem, var(--safe-top));
+      padding-left: max(1rem, var(--safe-left));
+      padding-right: max(1rem, var(--safe-right));
+    }
+    #infoModal .glass-panel {
+      /* Modal: respeta el safe-area en todos los lados */
+      margin-top:    var(--safe-top);
+      margin-bottom: var(--safe-bottom);
+      margin-left:   var(--safe-left);
+      margin-right:  var(--safe-right);
+    }
+
+    /* ============================================================
+       PLEGABLES (foldables) — aprovechar la pantalla expandida
+       ============================================================ */
+    @media (min-width: 548px) and (max-width: 845px) {
+      /* En plegables en modo expandido, mostrar el contenido en 2 columnas
+         para aprovechar el ancho extra */
+      #polygonScreen {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+      }
+      #polygonScreen #canvasColumn {
+        grid-column: span 7 / span 7;
+      }
+      #polygonScreen #detailsColumn {
+        grid-column: span 5 / span 5;
+      }
+    }
+
+    /* ============================================================
+       MODO STANDALONE (PWA instalada) — más espacio vertical
+       ============================================================ */
+    @media (display-mode: standalone), (display-mode: window-controls-overlay) {
+      /* Cuando la app está instalada, el header puede usar todo el ancho
+         sin padding por la URL bar del navegador */
+      body {
+        padding-top: var(--safe-top);
+      }
+      /* Window Controls Overlay (PWA en escritorio): reservar espacio
+         para los botones de ventana en la esquina superior derecha */
+      @media (display-mode: window-controls-overlay) {
+        header.sticky > div:first-child {
+          padding-right: max(1rem, env(titlebar-area-x, 0px));
+          -webkit-app-region: drag;
+        }
+        header.sticky button, header.sticky .nav-tab, header.sticky nav {
+          -webkit-app-region: no-drag;
+        }
+      }
+    }
+
+    /* ============================================================
+       ACCESIBILIDAD — respeta prefers-reduced-motion
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      /* Desactivar la auto-rotación 3D para usuarios sensibles al movimiento */
+      #threeContainer {
+        animation: none !important;
+      }
+    }
+
+    /* ============================================================
+       IMPRESIÓN — si el usuario imprime, fondo claro y sin sombras
+       ============================================================ */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .glass-panel, .glass-card {
+        background: white !important;
+        backdrop-filter: none !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+      }
+      header.sticky, nav, button {
+        display: none !important;
+      }
     }
 
     /* ============================================================
@@ -137,9 +361,6 @@
        4) touch-action: manipulation en botones: elimina el retardo
           de 300ms y el efecto de "selección" al hacer doble tap.
        ============================================================ */
-    /* Por defecto, todo el body permite selección (para que el usuario
-       pueda copiar fórmulas y texto). Solo la desactivamos en zonas
-       puramente interactivas o decorativas. */
     canvas,
     button,
     .nav-tab,
@@ -157,9 +378,8 @@
       -ms-user-select: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none; /* iOS: no menú contextual al mantener pulsado */
+      -webkit-touch-callout: none;
     }
-
     /* Outline de foco accesible pero discreto */
     button:focus-visible,
     input:focus-visible,
@@ -170,15 +390,11 @@
       outline-offset: 2px;
       border-radius: 6px;
     }
-
-    /* Sin outline en foco por ratón (solo teclado) */
     button:focus:not(:focus-visible),
     input:focus:not(:focus-visible),
     select:focus:not(:focus-visible) {
       outline: none;
     }
-
-    /* Los inputs de número sí deben permitir selección para editar */
     input[type="number"],
     input[type="text"],
     textarea {
@@ -187,31 +403,20 @@
       -ms-user-select: text;
       user-select: text;
     }
-
-    /* touch-action: manipulation en botones (elimina el retardo táctil
-       y el comportamiento de selección al doble tap) */
     button,
     .nav-tab,
     [role="button"] {
       touch-action: manipulation;
     }
-
-    /* Los canvas tienen su propio manejo de eventos de puntero; no queremos
-       que el navegador interprete el arrastre como selección de contenido
-       adyacente. */
     canvas {
       touch-action: none;
     }
 
     /* === Maximizar / Restaurar área gráfica (Pantalla Poligonal) === */
-    /* Estado maximizado: el canvas ocupa las 12 columnas y la columna de
-       detalles se colapsa. En móvil (grid-cols-1) el comportamiento es el
-       mismo: se ocultan los detalles y se libera el alto del canvas. */
     #polygonScreen.maximized #canvasColumn {
       grid-column: span 12 / span 12;
     }
     #polygonScreen.maximized #detailsColumn {
-      /* Colapsar visualmente: 0 columnas + opacidad 0 + sin alto */
       grid-column: span 12 / span 12;
       max-height: 0;
       opacity: 0;
@@ -219,13 +424,11 @@
       pointer-events: none;
       visibility: hidden;
     }
-    /* En móvil (grid-cols-1) el max-height es el que hace el trabajo */
     @media (max-width: 1023px) {
       #polygonScreen.maximized #detailsColumn {
         display: none;
       }
     }
-    /* Cuando está maximizado, el canvas puede crecer en altura */
     #polygonScreen.maximized #canvasContainer {
       max-height: 70vh;
       aspect-ratio: 4 / 3;
@@ -233,6 +436,84 @@
     @media (min-width: 1024px) {
       #polygonScreen.maximized #canvasContainer {
         max-height: 75vh;
+      }
+    }
+
+    /* ============================================================
+       LAYOUTS RESPONSIVE POR PANTALLA
+       ============================================================ */
+
+    /* === Pantalla poligonal: breakpoint tablet (md) además de lg === */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      #polygonScreen {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+      }
+      #polygonScreen #canvasColumn {
+        grid-column: span 7 / span 7;
+      }
+      #polygonScreen #detailsColumn {
+        grid-column: span 5 / span 5;
+      }
+    }
+
+    /* === Pantalla 3D: en móvil el canvas debe ser más alto que aspect-video === */
+    @media (max-width: 639px) {
+      #threeContainer {
+        aspect-ratio: 1 / 1;  /* cuadrado en móvil para mejor visibilidad */
+        min-height: 60vh;
+      }
+    }
+    @media (min-width: 640px) and (max-width: 1023px) {
+      #threeContainer {
+        aspect-ratio: 4 / 3;
+        min-height: 400px;
+      }
+    }
+
+    /* === Pantalla Demostraciones: botones con fórmula wrap en móvil === */
+    #proofsScreen .flex.items-center.justify-between {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    @media (max-width: 639px) {
+      #proofCanvas {
+        aspect-ratio: 1 / 1;
+      }
+      /* Botones de prueba: stack vertical en móvil muy estrecho */
+      #proofsScreen .flex.gap-2 {
+        width: 100%;
+      }
+      #proofsScreen .flex.gap-2 > button {
+        flex: 1 1 auto;
+        min-height: 44px;
+      }
+    }
+
+    /* === Quiz: opciones más grandes en táctil (touch targets 44px) === */
+    @media (pointer: coarse) {
+      #quizOptions button {
+        min-height: 48px;
+        padding: 0.75rem;
+        font-size: var(--fs-sm);
+      }
+    }
+
+    /* === Calculadora: botón full-width en móvil === */
+    @media (max-width: 639px) {
+      #calculatorScreen .flex.flex-col.sm\:flex-row button {
+        width: 100%;
+        min-height: 48px;
+      }
+    }
+
+    /* === Modal de info: full-screen en móvil === */
+    @media (max-width: 639px) {
+      #infoModal .glass-panel {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
       }
     }
   </style>
@@ -2016,22 +2297,55 @@
       document.getElementById('infoModal').classList.add('hidden');
     }
 
-    // Window Resize Handler
-    window.addEventListener('resize', () => {
+    // Resize handler — con debounce para evitar re-renders excesivos.
+    // Cubre: redimensionado de ventana, rotación de móvil/tablet,
+    // cambio de orientación, y despliegue de plegables.
+    let _resizeTimer = null;
+    function handleResize() {
+      // Pantalla poligonal: redibujar canvas
       if (!document.getElementById('polygonScreen').classList.contains('hidden')) {
         drawPolygonCanvas();
       }
+      // Pantalla 3D: actualizar aspect ratio y tamaño del renderer
       if (threeRenderer && !document.getElementById('multidimScreen').classList.contains('hidden')) {
         const container = document.getElementById('threeContainer');
-        threeCamera.aspect = container.clientWidth / container.clientHeight;
+        const w = Math.max(1, container.clientWidth);
+        const h = Math.max(1, container.clientHeight);
+        threeCamera.aspect = w / h;
         threeCamera.updateProjectionMatrix();
-        threeRenderer.setSize(container.clientWidth, container.clientHeight);
+        threeRenderer.setSize(w, h);
+        // Recalcular posición de cámara según el nuevo tamaño
+        const sliderVal = parseInt(document.getElementById('slider3D').value) || 4;
+        const n = sliderVal;
+        const spacing = 1.0;
+        const maxExtent = Math.max(n * spacing, (n - 1) * spacing * 0.85);
+        const camDist = maxExtent * 1.6 + 4;
+        // Mantener la dirección de la cámara, solo ajustar la distancia
+        const currentDir = threeCamera.position.clone().normalize();
+        threeCamera.position.copy(currentDir.multiplyScalar(camDist * 0.85));
+        threeCamera.lookAt(0, 0, 0);
         threeRenderer.render(threeScene, threeCamera);
       }
+      // Pantalla de demostraciones: redibujar canvas
       if (!document.getElementById('proofsScreen').classList.contains('hidden')) {
         drawProofCanvas();
       }
+    }
+    function debouncedResize() {
+      if (_resizeTimer) clearTimeout(_resizeTimer);
+      _resizeTimer = setTimeout(handleResize, 120);
+    }
+    window.addEventListener('resize', debouncedResize);
+    // Rotación de móvil/tablet (evento específico)
+    window.addEventListener('orientationchange', () => {
+      // Tras orientationchange el tamaño tarda un instante en actualizarse
+      setTimeout(handleResize, 250);
     });
+    // Visual viewport API: detecta cuando aparece el teclado virtual en móvil
+    // o cuando cambia el zoom del navegador
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', debouncedResize);
+    }
 
     window.onload = function() {
       // Deep-linking desde accesos directos de la PWA: ?tab=triangular|square|...
