@@ -9,7 +9,7 @@
      limitado a /numerospoligonales/.
    ========================================================================== */
 
-const SW_VERSION = "v1.6.0";
+const SW_VERSION = "v1.7.0";
 const APP_SHELL_CACHE = `npf-shell-${SW_VERSION}`;
 const RUNTIME_CACHE = `npf-runtime-${SW_VERSION}`;
 const FONT_CACHE = `npf-fonts-${SW_VERSION}`;
