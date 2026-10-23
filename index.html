@@ -239,65 +239,87 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-blue-600 selection:text-white">
 
-  <!-- Top Navigation Header -->
-  <header class="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 px-4 py-3 shadow-lg">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-      <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
-        <div class="flex items-center space-x-2">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-lg text-white shadow-md shadow-blue-500/20">
-            $\Delta$
-          </div>
-          <div>
-            <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2 flex-wrap">
-              Números Poligonales y Figurados
-              <span id="versionChip"
-                    class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/30 align-middle select-none"
-                    title="Versión del Service Worker"
-                    aria-label="Versión de la aplicación">v…</span>
-            </h1>
-            <p class="text-xs text-slate-400">De la Geometría a la Multidimensionalidad</p>
-          </div>
+  <!-- ============================================================
+       CABECERA + NAVEGACIÓN
+       - Fila 1 (sticky): logo + título + versión + info
+       - Fila 2 (sticky, debajo): navegación agrupada en 2 bloques
+         (Poligonales | Herramientas) sin scroll horizontal en
+         escritorio; en móvil se reorganiza en grid.
+       ============================================================ -->
+  <header class="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 shadow-lg">
+
+    <!-- Fila 1: identidad -->
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-2 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-lg text-white shadow-md shadow-blue-500/20 shrink-0">
+          $\Delta$
         </div>
-        <button onclick="showInfoModal()" class="md:hidden p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white">
-          ℹ️
+        <div class="min-w-0">
+          <h1 class="text-base font-bold tracking-tight text-white">
+            Números Poligonales y Figurados<span id="versionChip"
+                  class="inline-flex items-center ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/30 align-middle select-none"
+                  title="Versión del Service Worker"
+                  aria-label="Versión de la aplicación">v…</span>
+          </h1>
+          <p class="text-xs text-slate-400 truncate">De la Geometría a la Multidimensionalidad</p>
+        </div>
+      </div>
+      <button onclick="showInfoModal()" class="shrink-0 flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs text-slate-300 hover:text-white transition">
+        <span>ℹ️</span><span class="hidden sm:inline">Información</span>
+      </button>
+    </div>
+
+    <!-- Fila 2: navegación agrupada, sin scroll horizontal -->
+    <nav class="max-w-7xl mx-auto px-4 pb-2.5 flex flex-wrap items-center gap-2 text-xs font-medium"
+         role="tablist" aria-label="Secciones de la aplicación">
+
+      <!-- Grupo 1: Números poligonales (s = 3, 4, 5, 6, general) -->
+      <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Números poligonales">
+        <button id="tab-triangular" onclick="switchTab('triangular')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
+          Triangulares ($s=3$)
+        </button>
+        <button id="tab-square" onclick="switchTab('square')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
+          Cuadrados ($s=4$)
+        </button>
+        <button id="tab-pentagonal" onclick="switchTab('pentagonal')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
+          Pentagonales ($s=5$)
+        </button>
+        <button id="tab-hexagonal" onclick="switchTab('hexagonal')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
+          Hexagonales ($s=6$)
+        </button>
+        <button id="tab-general" onclick="switchTab('general')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
+          $s$-Gonales (General)
         </button>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="flex items-center space-x-1 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 text-xs font-medium scrollbar-none">
-        <button id="tab-triangular" onclick="switchTab('triangular')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
-          Triangulares ($s=3$)
-        </button>
-        <button id="tab-square" onclick="switchTab('square')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
-          Cuadrados ($s=4$)
-        </button>
-        <button id="tab-pentagonal" onclick="switchTab('pentagonal')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
-          Pentagonales ($s=5$)
-        </button>
-        <button id="tab-hexagonal" onclick="switchTab('hexagonal')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
-          Hexagonales ($s=6$)
-        </button>
-        <button id="tab-general" onclick="switchTab('general')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
-          $s$-Gonales (General)
-        </button>
-        <button id="tab-multidim" onclick="switchTab('multidim')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap border border-indigo-500/30">
+      <!-- Divisor visual entre grupos -->
+      <span class="hidden sm:block h-5 w-px bg-slate-700/70 mx-1" aria-hidden="true"></span>
+
+      <!-- Grupo 2: Herramientas (3D, demostraciones, desafíos, calculadora) -->
+      <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Herramientas">
+        <button id="tab-multidim" onclick="switchTab('multidim')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 border border-indigo-500/30">
           🧊 3D / Multidim
         </button>
-        <button id="tab-proofs" onclick="switchTab('proofs')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+        <button id="tab-proofs" onclick="switchTab('proofs')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
           💡 Demostraciones
         </button>
-        <button id="tab-quiz" onclick="switchTab('quiz')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap border border-yellow-500/30">
+        <button id="tab-quiz" onclick="switchTab('quiz')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 border border-yellow-500/30">
           🏆 Desafíos
         </button>
-        <button id="tab-calculator" onclick="switchTab('calculator')" class="nav-tab px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap">
+        <button id="tab-calculator" onclick="switchTab('calculator')" role="tab"
+                class="nav-tab px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800">
           🔢 Calculadora
         </button>
-      </nav>
-
-      <button onclick="showInfoModal()" class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs text-slate-300 hover:text-white transition">
-        <span>ℹ️ Información</span>
-      </button>
-    </div>
+      </div>
+    </nav>
   </header>
 
   <!-- Main Content Layout -->
