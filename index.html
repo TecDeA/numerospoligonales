@@ -123,6 +123,86 @@
       background: #475569;
     }
 
+    /* ============================================================
+       Saneamiento del entorno: eliminar "áreas de captura"
+       ------------------------------------------------------------
+       1) Desactivar selección de texto en zonas no textuales
+          (canvas, botones, badges, headers, nav). Esto evita el
+          rectángulo azul semitransparente que aparece al hacer clic
+          o arrastrar sobre la interfaz.
+       2) Outline de foco discreto (azul, no el naranja grueso
+          por defecto del navegador).
+       3) -webkit-tap-highlight-color transparente en móvil: evita
+          el flash gris al tocar un botón.
+       4) touch-action: manipulation en botones: elimina el retardo
+          de 300ms y el efecto de "selección" al hacer doble tap.
+       ============================================================ */
+    /* Por defecto, todo el body permite selección (para que el usuario
+       pueda copiar fórmulas y texto). Solo la desactivamos en zonas
+       puramente interactivas o decorativas. */
+    canvas,
+    button,
+    .nav-tab,
+    #screenBadge,
+    #currentNBadge,
+    .glass-panel header,
+    header.sticky,
+    #canvasContainer,
+    #threeContainer,
+    #polyCanvas,
+    #proofCanvas,
+    [role="button"] {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none; /* iOS: no menú contextual al mantener pulsado */
+    }
+
+    /* Outline de foco accesible pero discreto */
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 2px solid rgba(96, 165, 250, 0.7);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    /* Sin outline en foco por ratón (solo teclado) */
+    button:focus:not(:focus-visible),
+    input:focus:not(:focus-visible),
+    select:focus:not(:focus-visible) {
+      outline: none;
+    }
+
+    /* Los inputs de número sí deben permitir selección para editar */
+    input[type="number"],
+    input[type="text"],
+    textarea {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+
+    /* touch-action: manipulation en botones (elimina el retardo táctil
+       y el comportamiento de selección al doble tap) */
+    button,
+    .nav-tab,
+    [role="button"] {
+      touch-action: manipulation;
+    }
+
+    /* Los canvas tienen su propio manejo de eventos de puntero; no queremos
+       que el navegador interprete el arrastre como selección de contenido
+       adyacente. */
+    canvas {
+      touch-action: none;
+    }
+
     /* === Maximizar / Restaurar área gráfica (Pantalla Poligonal) === */
     /* Estado maximizado: el canvas ocupa las 12 columnas y la columna de
        detalles se colapsa. En móvil (grid-cols-1) el comportamiento es el
@@ -248,8 +328,8 @@
                       type="button"
                       onclick="toggleCanvasMaximize()"
                       class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition"
-                      title="Maximir área gráfica"
-                      aria-label="Maximir área gráfica"
+                      title="Maximizar área gráfica"
+                      aria-label="Maximizar área gráfica"
                       aria-pressed="false">
                 <!-- Icono "expandir" (4 flechas hacia fuera) -->
                 <svg id="iconMaximize" class="w-4 h-4 block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -383,7 +463,7 @@
         <div class="flex items-center justify-between">
           <div>
             <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-900/50 text-indigo-300 border border-indigo-700/50">
-              Visualización 3D Interactivas
+              Visualización 3D Interactiva
             </span>
             <h2 class="text-xl font-bold text-white mt-1">Pirámides y Tetraedros Multidimensionales</h2>
           </div>
@@ -450,7 +530,7 @@
     <section id="proofsScreen" class="hidden grid-cols-1 lg:grid-cols-12 gap-6">
       <div class="lg:col-span-7 glass-panel p-5 rounded-2xl shadow-xl space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold text-white">Demostraciones Visuais "Sin Palabras"</h2>
+          <h2 class="text-xl font-bold text-white">Demostraciones Visuales "Sin Palabras"</h2>
           <div class="flex gap-2">
             <button onclick="setProof('twoTriangles')" id="btnProof1" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white">
               $T_{n-1} + T_n = n^2$
@@ -671,7 +751,7 @@
         formulaLatex: 'C_n = n^2',
         gnomonDesc: 'El gnomon de un número cuadrado es el $n$-ésimo número impar ($2n - 1$).',
         notes: [
-          '• Suma de los primeros $n$ números impares impares consecutivos: $1 + 3 + 5 + \\dots + (2n-1) = n^2$.',
+          '• Suma de los primeros $n$ números impares consecutivos: $1 + 3 + 5 + \\dots + (2n-1) = n^2$.',
           '• Formado geométricamente agregando dos lados contiguos en forma de L.'
         ]
       },
@@ -894,8 +974,8 @@
       // Alternar iconos y estado ARIA
       if (btn) {
         btn.setAttribute('aria-pressed', String(canvasMaximized));
-        btn.title = canvasMaximized ? 'Restaurar área gráfica' : 'Maximir área gráfica';
-        btn.setAttribute('aria-label', canvasMaximized ? 'Restaurar área gráfica' : 'Maximir área gráfica');
+        btn.title = canvasMaximized ? 'Restaurar área gráfica' : 'Maximizar área gráfica';
+        btn.setAttribute('aria-label', canvasMaximized ? 'Restaurar área gráfica' : 'Maximizar área gráfica');
       }
       if (iconMax) iconMax.classList.toggle('hidden', canvasMaximized);
       if (iconRest) iconRest.classList.toggle('hidden', !canvasMaximized);
@@ -960,11 +1040,15 @@
 
       if (s === 3) {
         // Triangular Grid Alignment
+        // El triángulo equilátero se orienta con la BASE ABAJO y el VÉRTICE ARRIBA.
+        // layers[0] = base (n puntos, Y mayor = más abajo en pantalla)
+        // layers[n-1] = vértice (1 punto, Y menor = más arriba en pantalla)
         const h = baseRadius * Math.sin(Math.PI / 3);
-        const startY = centerY + (n * h) / 2 - h / 2;
-        for (let row = 1; row <= n; row++) {
+        for (let row = n; row >= 1; row--) {
           let layerPoints = [];
-          const rowY = startY - (row - 1) * h;
+          // Fórmula: rowY centrado verticalmente. Para row=n (base), Y = +h*(n-1)/2 (abajo);
+          // para row=1 (vértice), Y = -h*(n-1)/2 (arriba).
+          const rowY = centerY + (row - (n + 1) / 2) * h;
           const rowStartX = centerX - ((row - 1) * baseRadius) / 2;
           for (let col = 0; col < row; col++) {
             layerPoints.push({
@@ -1035,42 +1119,104 @@
 
       // Draw Grid/Edge Lines if enabled
       if (showGrid) {
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)'; // slate-400 visible
-        ctx.lineWidth = 1.2;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
         if (s === 3) {
-          // Triangular lattice: 3 direcciones de paralelas
-          // (1) Horizontales: una por cada fila
+          // === Malla triangular: 3 direcciones de paralelas ===
+          // Para un triángulo equilátero de lado n (con n puntos en la base),
+          // las 3 direcciones de líneas son:
+          //   (1) Horizontales: n filas, cada una con i puntos (i = 1..n)
+          //   (2) Diagonales ↘ (NO→SE): n líneas, la i-ésima tiene i puntos
+          //   (3) Diagonales ↙ (NE→SO): n líneas, la i-ésima tiene i puntos
+          // Cada línea se traza de punta a punta (no segmento a segmento).
+          //
+          // Reutilizamos la geometría ya calculada en `layers`:
+          //   layers[0] = base (n puntos, abajo)
+          //   layers[n-1] = vértice (1 punto, arriba)
+
+          const h = baseRadius * Math.sin(Math.PI / 3);
+          // Base del triángulo (fila inferior en pantalla, Y mayor)
+          const baseY = layers[0][0].y;
+          const baseLeftX = layers[0][0].x;
+          const baseRightX = layers[0][layers[0].length - 1].x;
+          // Vértice (arriba, Y menor)
+          const apexY = layers[layers.length - 1][0].y;
+          const apexX = layers[layers.length - 1][0].x;
+
+          // Líneas internas finas y semitransparentes
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+          ctx.lineWidth = 1.1;
+
+          // (1) Horizontales — una por cada fila (de 2 puntos en adelante)
           layers.forEach(layer => {
             if (layer.length < 2) return;
             ctx.beginPath();
             ctx.moveTo(layer[0].x, layer[0].y);
-            for (let i = 1; i < layer.length; i++) {
-              ctx.lineTo(layer[i].x, layer[i].y);
-            }
+            ctx.lineTo(layer[layer.length - 1].x, layer[layer.length - 1].y);
             ctx.stroke();
           });
-          // (2 y 3) Diagonales: conecta cada punto con sus vecinos de la fila superior
-          // layers[0] = base (n puntos), layers[n-1] = vértice (1 punto)
-          for (let r = 0; r < layers.length - 1; r++) {
-            const lower = layers[r];      // fila inferior (más puntos)
-            const upper = layers[r + 1];  // fila superior (un punto menos)
-            for (let c = 0; c < upper.length; c++) {
-              // upper[c] conecta con lower[c] (abajo-izq) y lower[c+1] (abajo-der)
-              [[c, 0], [c + 1, 0]].forEach(([lc]) => {
-                if (lower[lc]) {
-                  ctx.beginPath();
-                  ctx.moveTo(upper[c].x, upper[c].y);
-                  ctx.lineTo(lower[lc].x, lower[lc].y);
-                  ctx.stroke();
-                }
-              });
+
+          // (2) Diagonales ↘ : desde el borde izquierdo, bajan a la derecha.
+          //     Cada diagonal i (i=0..n-1) empieza en layers[i][0] (lado izquierdo)
+          //     y termina en layers[0][i] (base, posición i).
+          for (let i = 0; i < n; i++) {
+            // Construir la cadena de puntos de esta diagonal
+            const chain = [];
+            for (let k = 0; k <= i; k++) {
+              const row = i - k;       // índice de fila (0 = base, n-1 = vértice)
+              const col = k;           // índice dentro de la fila
+              if (layers[row] && layers[row][col]) {
+                chain.push(layers[row][col]);
+              }
             }
+            if (chain.length < 2) continue;
+            ctx.beginPath();
+            ctx.moveTo(chain[0].x, chain[0].y);
+            for (let k = 1; k < chain.length; k++) {
+              ctx.lineTo(chain[k].x, chain[k].y);
+            }
+            ctx.stroke();
           }
+
+          // (3) Diagonales ↙ : desde el borde derecho, bajan a la izquierda.
+          //     Cada diagonal i (i=0..n-1) empieza en layers[i][último] (lado derecho)
+          //     y termina en layers[0][n-1-i] (base).
+          for (let i = 0; i < n; i++) {
+            const chain = [];
+            for (let k = 0; k <= i; k++) {
+              const row = i - k;
+              const col = (layers[row] ? layers[row].length - 1 - k : -1);
+              if (layers[row] && layers[row][col]) {
+                chain.push(layers[row][col]);
+              }
+            }
+            if (chain.length < 2) continue;
+            ctx.beginPath();
+            ctx.moveTo(chain[0].x, chain[0].y);
+            for (let k = 1; k < chain.length; k++) {
+              ctx.lineTo(chain[k].x, chain[k].y);
+            }
+            ctx.stroke();
+          }
+
+          // Bordes del triángulo: 3 lados en color más vivo y grueso
+          ctx.strokeStyle = 'rgba(96, 165, 250, 0.85)'; // blue-400
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          // Lado izquierdo: base→vértice
+          ctx.moveTo(baseLeftX, baseY);
+          ctx.lineTo(apexX, apexY);
+          // Lado derecho: vértice→base derecha
+          ctx.lineTo(baseRightX, baseY);
+          // Base: derecha→izquierda
+          ctx.closePath();
+          ctx.stroke();
+
         } else if (s === 4) {
           // Cuadrado: rejilla n x n completa (verticales + horizontales)
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+          ctx.lineWidth = 1.1;
           const startX = centerX - ((n - 1) * baseRadius) / 2;
           const startY = centerY - ((n - 1) * baseRadius) / 2;
           const endX = startX + (n - 1) * baseRadius;
@@ -1087,8 +1233,15 @@
             ctx.lineTo(startX + i * baseRadius, endY);
             ctx.stroke();
           }
+          // Borde del cuadrado más vivo
+          ctx.strokeStyle = 'rgba(52, 211, 153, 0.85)'; // emerald-400
+          ctx.lineWidth = 2;
+          ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+
         } else {
           // s-gonal: dibujar el contorno cerrado de cada nivel
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+          ctx.lineWidth = 1.1;
           layers.forEach(layer => {
             if (layer.length < 2) return;
             ctx.beginPath();
@@ -1099,6 +1252,19 @@
             ctx.closePath();
             ctx.stroke();
           });
+          // Contorno exterior más vivo
+          if (layers.length > 0 && layers[layers.length - 1].length >= 2) {
+            const outer = layers[layers.length - 1];
+            ctx.strokeStyle = 'rgba(167, 139, 250, 0.85)'; // violet-400
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            outer.forEach((pt, idx) => {
+              if (idx === 0) ctx.moveTo(pt.x, pt.y);
+              else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.closePath();
+            ctx.stroke();
+          }
         }
       }
 
@@ -1135,66 +1301,137 @@
       ctx.shadowBlur = 0;
     }
 
-    /* Three.js 3D Multidimensional Visualizer */
-    let threeScene, threeCamera, threeRenderer, sphereGroup;
+    /* Three.js 3D Multidimensional Visualizer
+       ----------------------------------------------------------------
+       Render 3D mejorado:
+       - Cámara apunta al centro geométrico de la pirámide (no al origen).
+       - Iluminación de 3 puntos (key + fill + rim) + ambient.
+       - MeshStandardMaterial con emissive para que las esferas brillen.
+       - Tone mapping ACES Filmic + sRGB encoding → colores vivos.
+       - Esferas con borde claro y auto-rotación lenta.
+       - En el tetraedro se dibujan las aristas (lineSegments) de cada capa
+         triangular, igual que en el vídeo de referencia.
+       ---------------------------------------------------------------- */
+    let threeScene, threeCamera, threeRenderer, sphereGroup, edgeGroup;
+    let threeAnimationFrameId = null;
 
     function init3DScene() {
       const container = document.getElementById('threeContainer');
       if (!container) return;
 
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+      const width = Math.max(1, container.clientWidth);
+      const height = Math.max(1, container.clientHeight);
 
       threeScene = new THREE.Scene();
-      threeScene.background = new THREE.Color(0x020617);
+      // Fondo con un degradado vertical sutil (mediante niebla)
+      threeScene.background = new THREE.Color(0x0b0f19);
+      threeScene.fog = new THREE.Fog(0x0b0f19, 18, 38);
 
       threeCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      threeCamera.position.set(0, 10, 20);
+      // Posición y lookAt se ajustan en update3DScene según el tamaño de la pirámide.
+      threeCamera.position.set(7, 6, 11);
 
-      threeRenderer = new THREE.WebGLRenderer({ antialias: true });
+      threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
       threeRenderer.setSize(width, height);
-      threeRenderer.setPixelRatio(window.devicePixelRatio);
+      threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      // Colores vivos y realistas
+      threeRenderer.outputEncoding = THREE.sRGBEncoding;
+      threeRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+      threeRenderer.toneMappingExposure = 1.15;
+      // Limpieza del contenedor (por si se reinicializa)
+      while (container.firstChild) container.removeChild(container.firstChild);
       container.appendChild(threeRenderer.domElement);
 
-      // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-      threeScene.add(ambientLight);
+      // === Iluminación de 3 puntos ===
+      const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+      threeScene.add(ambient);
 
-      const dirLight = new THREE.DirectionalLight(0x38bdf8, 0.8);
-      dirLight.position.set(10, 20, 15);
-      threeScene.add(dirLight);
+      // Key light (luz principal cálida desde arriba-derecha-frontal)
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+      keyLight.position.set(8, 14, 10);
+      threeScene.add(keyLight);
 
-      const pointLight = new THREE.PointLight(0x818cf8, 1, 50);
-      pointLight.position.set(-10, -10, -10);
-      threeScene.add(pointLight);
+      // Fill light (luz de relleno fría desde el lado opuesto, suave)
+      const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.5);
+      fillLight.position.set(-10, 6, -4);
+      threeScene.add(fillLight);
 
+      // Rim/back light (contorno desde atrás, da separación del fondo)
+      const rimLight = new THREE.DirectionalLight(0xa78bfa, 0.7);
+      rimLight.position.set(0, 4, -12);
+      threeScene.add(rimLight);
+
+      // Point light frontal baja para iluminar la parte inferior de la pirámide
+      const frontLight = new THREE.PointLight(0x38bdf8, 0.8, 30);
+      frontLight.position.set(0, -2, 8);
+      threeScene.add(frontLight);
+
+      // Grupos: esferas + aristas
       sphereGroup = new THREE.Group();
       threeScene.add(sphereGroup);
+      edgeGroup = new THREE.Group();
+      threeScene.add(edgeGroup);
 
-      // Mouse drag rotation controls
+      // === Controles de ratón: rotación + zoom ===
       let isDragging = false;
       let previousMousePosition = { x: 0, y: 0 };
+      let userInteracting = false;
+      let interactionTimeout = null;
 
-      container.addEventListener('mousedown', e => {
+      const onPointerDown = (e) => {
         isDragging = true;
+        userInteracting = true;
         previousMousePosition = { x: e.clientX, y: e.clientY };
-      });
-
-      window.addEventListener('mousemove', e => {
+        container.style.cursor = 'grabbing';
+      };
+      const onPointerMove = (e) => {
         if (!isDragging) return;
         const deltaX = e.clientX - previousMousePosition.x;
         const deltaY = e.clientY - previousMousePosition.y;
-
         sphereGroup.rotation.y += deltaX * 0.01;
         sphereGroup.rotation.x += deltaY * 0.01;
-
+        // Las aristas rotan solidariamente
+        edgeGroup.rotation.copy(sphereGroup.rotation);
         previousMousePosition = { x: e.clientX, y: e.clientY };
-      });
+      };
+      const onPointerUp = () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+        // Tras 2 s sin interacción, reanuda la auto-rotación
+        if (interactionTimeout) clearTimeout(interactionTimeout);
+        interactionTimeout = setTimeout(() => { userInteracting = false; }, 2000);
+      };
 
-      window.addEventListener('mouseup', () => isDragging = false);
+      container.addEventListener('mousedown', onPointerDown);
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('mouseup', onPointerUp);
+
+      // Touch support
+      container.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          onPointerDown({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+        }
+      }, { passive: true });
+      container.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+          onPointerMove({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+        }
+      }, { passive: true });
+      container.addEventListener('touchend', onPointerUp);
+
+      // Zoom con rueda
+      container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const factor = e.deltaY > 0 ? 1.08 : 0.93;
+        const dist = threeCamera.position.length();
+        const newDist = Math.max(6, Math.min(28, dist * factor));
+        threeCamera.position.normalize().multiplyScalar(newDist);
+      }, { passive: false });
+
+      container.style.cursor = 'grab';
 
       update3DScene(document.getElementById('slider3D').value);
-      animate3D();
+      animate3D(userInteracting);
     }
 
     function update3DScene(val) {
@@ -1202,48 +1439,82 @@
       document.getElementById('val3DN').innerText = n;
       if (!sphereGroup) return;
 
-      // Clear existing spheres
-      while (sphereGroup.children.length > 0) {
-        sphereGroup.remove(sphereGroup.children[0]);
-      }
+      // Limpiar esferas y aristas existentes
+      while (sphereGroup.children.length > 0) sphereGroup.remove(sphereGroup.children[0]);
+      while (edgeGroup.children.length > 0) edgeGroup.remove(edgeGroup.children[0]);
 
       const shapeType = document.getElementById('select3DShape').value;
-      const sphereRadius = 0.45;
       const spacing = 1.0;
+      const sphereRadius = 0.34;
 
-      const sphereGeo = new THREE.SphereGeometry(sphereRadius, 24, 24);
+      // Reutilizamos geometría para todas las esferas
+      const sphereGeo = new THREE.SphereGeometry(sphereRadius, 28, 28);
+
+      // Centrar la pirámide verticalmente: la capa base queda en y=0,
+      // la cima en y = (n-1)*spacing*0.85. El centro es y = (n-1)*spacing*0.85/2.
+      const layerHeight = spacing * 0.85;
+      const totalHeight = (n - 1) * layerHeight;
+      const yCenter = totalHeight / 2;
+
+      // Lista de todas las posiciones de esferas para construir aristas
+      const allPoints = []; // [{x,y,z}, ...]
 
       if (shapeType === 'tetrahedral') {
-        // Tetrahedral Pyramid (Sum of Triangular numbers)
+        // Tetraedro: cada capa k (k=1..n) tiene un triángulo de k filas
         for (let layer = 1; layer <= n; layer++) {
-          const rowCount = layer;
-          const y = (n - layer) * spacing * 0.85;
-          const hue = 0.55 + (layer / n) * 0.25; // Color gradient
+          const y = (layer - 1) * layerHeight - yCenter;
+          // Degradado de color de la base (azul) a la cima (rosa/violeta)
+          const t = n > 1 ? (layer - 1) / (n - 1) : 0;
+          const hue = 0.58 - t * 0.42; // de azul (0.58) a rosa (0.92→0.16, pero bajamos)
+          const color = new THREE.Color().setHSL(hue, 0.85, 0.58);
           const mat = new THREE.MeshStandardMaterial({
-            color: new THREE.Color().setHSL(hue, 0.8, 0.5),
-            roughness: 0.3,
-            metalness: 0.2
+            color: color,
+            roughness: 0.35,
+            metalness: 0.15,
+            emissive: color,
+            emissiveIntensity: 0.25
           });
 
-          for (let r = 0; r < rowCount; r++) {
+          // Triángulo de lado `layer`: filas r=0..layer-1, c=0..r
+          for (let r = 0; r < layer; r++) {
             for (let c = 0; c <= r; c++) {
               const mesh = new THREE.Mesh(sphereGeo, mat);
+              // Centro horizontal del triángulo: (layer-1)/2
               const x = (c - r / 2) * spacing;
-              const z = (r - rowCount / 2) * spacing;
-              mesh.position.set(x, y - (n * spacing) / 3, z);
+              const z = (r - (layer - 1) / 2) * spacing;
+              mesh.position.set(x, y, z);
               sphereGroup.add(mesh);
+              allPoints.push({ x, y, z, layer, r, c });
             }
           }
+
+          // Aristas de esta capa triangular (3 direcciones como en 2D)
+          const layerPoints = [];
+          for (let r = 0; r < layer; r++) {
+            const row = [];
+            for (let c = 0; c <= r; c++) {
+              const x = (c - r / 2) * spacing;
+              const z = (r - (layer - 1) / 2) * spacing;
+              row.push(new THREE.Vector3(x, y, z));
+            }
+            layerPoints.push(row);
+          }
+          addTriangularLayerEdges(layerPoints, edgeGroup, color, 0.4);
         }
       } else {
-        // Square Pyramid (Sum of Square numbers)
+        // Pirámide cuadrada: capa k = cuadrado k×k
         for (let layer = 1; layer <= n; layer++) {
           const side = layer;
-          const y = (n - layer) * spacing * 0.85;
+          const y = (layer - 1) * layerHeight - yCenter;
+          const t = n > 1 ? (layer - 1) / (n - 1) : 0;
+          const hue = 0.42 - t * 0.30; // de verde (0.42) a amarillo (0.12)
+          const color = new THREE.Color().setHSL(hue, 0.85, 0.55);
           const mat = new THREE.MeshStandardMaterial({
-            color: new THREE.Color().setHSL(0.35 + (layer / n) * 0.3, 0.8, 0.5),
-            roughness: 0.3,
-            metalness: 0.2
+            color: color,
+            roughness: 0.35,
+            metalness: 0.15,
+            emissive: color,
+            emissiveIntensity: 0.25
           });
 
           for (let r = 0; r < side; r++) {
@@ -1251,16 +1522,107 @@
               const mesh = new THREE.Mesh(sphereGeo, mat);
               const x = (c - (side - 1) / 2) * spacing;
               const z = (r - (side - 1) / 2) * spacing;
-              mesh.position.set(x, y - (n * spacing) / 3, z);
+              mesh.position.set(x, y, z);
               sphereGroup.add(mesh);
+              allPoints.push({ x, y, z, layer, r, c });
             }
+          }
+
+          // Aristas de la capa cuadrada
+          addSquareLayerEdges(side, spacing, y, edgeGroup, color, 0.4);
+        }
+      }
+
+      // === Ajustar cámara al tamaño de la figura ===
+      // Calcular bounding box aproximado
+      const maxExtent = Math.max(n * spacing, totalHeight);
+      const camDist = maxExtent * 1.6 + 4;
+      threeCamera.position.set(camDist * 0.55, camDist * 0.55, camDist * 0.85);
+      threeCamera.lookAt(0, 0, 0);
+      threeCamera.near = 0.1;
+      threeCamera.far = camDist * 4;
+      threeCamera.updateProjectionMatrix();
+
+      // Render KaTeX formula
+      let formulaLatex;
+      if (shapeType === 'tetrahedral') {
+        const tetraVal = (n * (n + 1) * (n + 2)) / 6;
+        formulaLatex = `Te_{${n}} = \\frac{${n}(${n}+1)(${n}+2)}{6} = ${tetraVal}`;
+      } else {
+        const pyrVal = (n * (n + 1) * (2 * n + 1)) / 6;
+        formulaLatex = `P_{${n}} = \\frac{${n}(${n}+1)(2 \\cdot ${n}+1)}{6} = ${pyrVal}`;
+      }
+      safeRenderKatex('katexTetraFormula', formulaLatex, true);
+    }
+
+    /* Dibuja las aristas de una capa triangular (3 direcciones de paralelas) */
+    function addTriangularLayerEdges(layerPoints, group, color, opacity) {
+      // layerPoints[r][c] — r = 0..layer-1, c = 0..r
+      const layer = layerPoints.length;
+      const positions = [];
+
+      // (1) Horizontales: una por fila (de 2 puntos en adelante)
+      for (let r = 0; r < layer; r++) {
+        const row = layerPoints[r];
+        for (let c = 0; c < row.length - 1; c++) {
+          positions.push(row[c].x, row[c].y, row[c].z);
+          positions.push(row[c + 1].x, row[c + 1].y, row[c + 1].z);
+        }
+      }
+      // (2) Diagonales ↘ : layer[i][0] → layer[0][i]
+      for (let i = 0; i < layer; i++) {
+        for (let k = 0; k < i; k++) {
+          const a = layerPoints[i - k][k];
+          const b = layerPoints[i - k - 1][k + 1];
+          if (a && b) {
+            positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
+          }
+        }
+      }
+      // (3) Diagonales ↙ : layer[i][last] → layer[0][n-1-i]
+      for (let i = 0; i < layer; i++) {
+        for (let k = 0; k < i; k++) {
+          const a = layerPoints[i - k][layerPoints[i - k].length - 1 - k];
+          const rowB = layerPoints[i - k - 1];
+          const b = rowB ? rowB[rowB.length - 1 - (k + 1)] : null;
+          if (a && b) {
+            positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
           }
         }
       }
 
-      // Render KaTeX formula for Tetrahedral
-      const tetraVal = (n * (n + 1) * (n + 2)) / 6;
-      safeRenderKatex('katexTetraFormula', `Te_{${n}} = \\frac{${n}(${n}+1)(${n}+2)}{6} = ${tetraVal}`, true);
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      const mat = new THREE.LineBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: opacity
+      });
+      const lines = new THREE.LineSegments(geo, mat);
+      group.add(lines);
+    }
+
+    /* Dibuja las aristas de una capa cuadrada (rejilla) */
+    function addSquareLayerEdges(side, spacing, y, group, color, opacity) {
+      const positions = [];
+      const half = (side - 1) / 2 * spacing;
+      for (let i = 0; i < side; i++) {
+        // Horizontal
+        const z = -half + i * spacing;
+        positions.push(-half, y, z, half, y, z);
+        // Vertical
+        const x = -half + i * spacing;
+        positions.push(x, y, -half, x, y, half);
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      const mat = new THREE.LineBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: opacity
+      });
+      const lines = new THREE.LineSegments(geo, mat);
+      group.add(lines);
     }
 
     function update3DShape(val) {
@@ -1268,13 +1630,31 @@
     }
 
     function animate3D() {
-      requestAnimationFrame(animate3D);
-      if (sphereGroup && !threeScene) return;
-      if (sphereGroup) sphereGroup.rotation.y += 0.003;
-      if (threeRenderer && threeScene && threeCamera) {
-        threeRenderer.render(threeScene, threeCamera);
+      threeAnimationFrameId = requestAnimationFrame(animate3D);
+      if (!threeRenderer || !threeScene || !threeCamera) return;
+      // Auto-rotación lenta solo si el usuario no está interactuando
+      if (sphereGroup && !isDragging3D) {
+        sphereGroup.rotation.y += 0.0025;
+        edgeGroup.rotation.y = sphereGroup.rotation.y;
+        edgeGroup.rotation.x = sphereGroup.rotation.x;
       }
+      threeRenderer.render(threeScene, threeCamera);
     }
+
+    // Estado de arrastre accesible desde animate3D
+    let isDragging3D = false;
+    // Hook: cuando el contenedor recibe mousedown, marcar isDragging3D
+    // (se gestiona en init3DScene con closures; actualizamos la variable global)
+    document.addEventListener('mousedown', (e) => {
+      const container = document.getElementById('threeContainer');
+      if (container && container.contains(e.target)) isDragging3D = true;
+    });
+    document.addEventListener('mouseup', () => { isDragging3D = false; });
+    document.addEventListener('touchstart', (e) => {
+      const container = document.getElementById('threeContainer');
+      if (container && container.contains(e.target)) isDragging3D = true;
+    }, { passive: true });
+    document.addEventListener('touchend', () => { isDragging3D = false; });
 
     /* Visual Proofs Without Words Canvas Renderer */
     let currentProof = 'twoTriangles';
@@ -1447,7 +1827,7 @@
         explanation: 'Todo número hexagonal H_n es equivalente al número triangular de índice impar T_{2n-1}.'
       },
       {
-        question: 'Según la fórmula de Cauchy-Hypsicles, ¿cuál es el valor de P₄ font para s=5 (Pentagonal)?',
+        question: 'Según la fórmula de Cauchy-Hypsicles, ¿cuál es el valor de P₄ para s=5 (Pentagonal)?',
         options: ['12', '22', '35', '51'],
         correct: 1,
         explanation: 'P₄^(5) = (3 × 4² - 4) / 2 = (48 - 4) / 2 = 22.'
