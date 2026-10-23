@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!--
+    Favicon SVG — "Números Poligonales y Figurados"
+    Tetraktys pitagórica (1+2+3+4 = 10) sobre fondo azul marino oscuro.
+    Paleta de la app: azul, esmeralda, ámbar, rosa.
+  -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+    <radialGradient id="g-blue" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </radialGradient>
+    <radialGradient id="g-emerald" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </radialGradient>
+    <radialGradient id="g-amber" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </radialGradient>
+    <radialGradient id="g-pink" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#f9a8d4"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Fondo redondeado -->
+  <rect width="64" height="64" rx="12" ry="12" fill="url(#bg)"/>
+
+  <!-- Tetraktys: 4-3-2-1 de abajo hacia arriba -->
+  <!-- Fila 1 (base): 4 puntos azules -->
+  <g fill="url(#g-blue)" stroke="#ffffff" stroke-width="0.6">
+    <circle cx="14" cy="50" r="5"/>
+    <circle cx="24" cy="50" r="5"/>
+    <circle cx="34" cy="50" r="5"/>
+    <circle cx="44" cy="50" r="5"/>
+  </g>
+  <!-- Fila 2: 3 puntos esmeralda -->
+  <g fill="url(#g-emerald)" stroke="#ffffff" stroke-width="0.6">
+    <circle cx="19" cy="38" r="5"/>
+    <circle cx="29" cy="38" r="5"/>
+    <circle cx="39" cy="38" r="5"/>
+  </g>
+  <!-- Fila 3: 2 puntos ámbar -->
+  <g fill="url(#g-amber)" stroke="#ffffff" stroke-width="0.6">
+    <circle cx="24" cy="26" r="5"/>
+    <circle cx="34" cy="26" r="5"/>
+  </g>
+  <!-- Fila 4 (vértice): 1 punto rosa -->
+  <g fill="url(#g-pink)" stroke="#ffffff" stroke-width="0.6">
+    <circle cx="29" cy="14" r="5"/>
+  </g>
+</svg>
