@@ -135,8 +135,12 @@
             $\Delta$
           </div>
           <div>
-            <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+            <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2 flex-wrap">
               Números Poligonales y Figurados
+              <span id="versionChip"
+                    class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/30 align-middle select-none"
+                    title="Versión del Service Worker"
+                    aria-label="Versión de la aplicación">v…</span>
             </h1>
             <p class="text-xs text-slate-400">De la Geometría a la Multidimensionalidad</p>
           </div>
@@ -920,16 +924,71 @@
 
       // Draw Grid/Edge Lines if enabled
       if (showGrid) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-        ctx.lineWidth = 1.5;
-        layers.forEach(layer => {
-          ctx.beginPath();
-          layer.forEach((pt, idx) => {
-            if (idx === 0) ctx.moveTo(pt.x, pt.y);
-            else ctx.lineTo(pt.x, pt.y);
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)'; // slate-400 visible
+        ctx.lineWidth = 1.2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        if (s === 3) {
+          // Triangular lattice: 3 direcciones de paralelas
+          // (1) Horizontales: una por cada fila
+          layers.forEach(layer => {
+            if (layer.length < 2) return;
+            ctx.beginPath();
+            ctx.moveTo(layer[0].x, layer[0].y);
+            for (let i = 1; i < layer.length; i++) {
+              ctx.lineTo(layer[i].x, layer[i].y);
+            }
+            ctx.stroke();
           });
-          ctx.stroke();
-        });
+          // (2 y 3) Diagonales: conecta cada punto con sus vecinos de la fila superior
+          // layers[0] = base (n puntos), layers[n-1] = vértice (1 punto)
+          for (let r = 0; r < layers.length - 1; r++) {
+            const lower = layers[r];      // fila inferior (más puntos)
+            const upper = layers[r + 1];  // fila superior (un punto menos)
+            for (let c = 0; c < upper.length; c++) {
+              // upper[c] conecta con lower[c] (abajo-izq) y lower[c+1] (abajo-der)
+              [[c, 0], [c + 1, 0]].forEach(([lc]) => {
+                if (lower[lc]) {
+                  ctx.beginPath();
+                  ctx.moveTo(upper[c].x, upper[c].y);
+                  ctx.lineTo(lower[lc].x, lower[lc].y);
+                  ctx.stroke();
+                }
+              });
+            }
+          }
+        } else if (s === 4) {
+          // Cuadrado: rejilla n x n completa (verticales + horizontales)
+          const startX = centerX - ((n - 1) * baseRadius) / 2;
+          const startY = centerY - ((n - 1) * baseRadius) / 2;
+          const endX = startX + (n - 1) * baseRadius;
+          const endY = startY + (n - 1) * baseRadius;
+          for (let i = 0; i < n; i++) {
+            // Horizontal
+            ctx.beginPath();
+            ctx.moveTo(startX, startY + i * baseRadius);
+            ctx.lineTo(endX, startY + i * baseRadius);
+            ctx.stroke();
+            // Vertical
+            ctx.beginPath();
+            ctx.moveTo(startX + i * baseRadius, startY);
+            ctx.lineTo(startX + i * baseRadius, endY);
+            ctx.stroke();
+          }
+        } else {
+          // s-gonal: dibujar el contorno cerrado de cada nivel
+          layers.forEach(layer => {
+            if (layer.length < 2) return;
+            ctx.beginPath();
+            layer.forEach((pt, idx) => {
+              if (idx === 0) ctx.moveTo(pt.x, pt.y);
+              else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.closePath();
+            ctx.stroke();
+          });
+        }
       }
 
       // Render Points Layer by Layer
@@ -1481,11 +1540,47 @@
        su scope es automáticamente ./  y NO interfiere con el portal raíz
        (tecdea.github.io) ni con otros proyectos del dominio.
        ==================================================================== */
+
+    /* --- Chip de versión (se alimenta del SW de forma automática) --- */
+    function setVersionChip(version) {
+      const chip = document.getElementById('versionChip');
+      if (!chip) return;
+      const v = String(version || '').trim();
+      if (!v) return;
+      // Asegura el prefijo "v"
+      chip.textContent = v.startsWith('v') ? v : 'v' + v;
+      chip.title = `Versión del Service Worker: ${chip.textContent}`;
+    }
+
+    async function fetchVersionFallback() {
+      // Si el SW aún no controla la página (primera visita) o no responde,
+      // leemos sw.js directamente y extraemos SW_VERSION con un regex.
+      try {
+        const resp = await fetch('./sw.js', { cache: 'no-store' });
+        if (!resp.ok) return;
+        const text = await resp.text();
+        const m = text.match(/SW_VERSION\s*=\s*["']([^"']+)["']/);
+        if (m && m[1]) setVersionChip(m[1]);
+      } catch (e) {
+        // Silencioso: en navegadores sin SW simplemente se queda "v…"
+      }
+    }
+
+    function requestVersionFromSW() {
+      if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return;
+      navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' });
+    }
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js', { scope: './' })
           .then((reg) => {
             console.log('[PWA] Service Worker registrado. Scope:', reg.scope);
+            // Pedir la versión al SW que ya controla la página (si lo hay).
+            requestVersionFromSW();
+            // Si todavía no hay controller (primera visita), usar fallback.
+            if (!navigator.serviceWorker.controller) fetchVersionFallback();
+
             // Detectar actualizaciones y notificar a la página para recargar.
             reg.addEventListener('updatefound', () => {
               const newWorker = reg.installing;
@@ -1503,13 +1598,28 @@
           })
           .catch((err) => {
             console.warn('[PWA] No se pudo registrar el Service Worker:', err);
+            // Aunque el SW falle, intentamos mostrar la versión vía fetch.
+            fetchVersionFallback();
           });
       });
 
-      // Listener opcional para mensajes del SW.
+      // Mensajes entrantes del SW: VERSION (respuesta a GET_VERSION) o RELOAD.
       navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data === 'RELOAD') window.location.reload();
+        const data = event.data;
+        if (data && typeof data === 'object' && data.type === 'VERSION') {
+          setVersionChip(data.version);
+        } else if (data === 'RELOAD') {
+          window.location.reload();
+        }
       });
+
+      // Cuando un nuevo SW toma el control (tras SKIP_WAITING), pedirle su versión.
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        requestVersionFromSW();
+      });
+    } else {
+      // Navegador sin soporte SW: mostrar versión leyendo sw.js por HTTP.
+      fetchVersionFallback();
     }
 
     // iOS: detección de modo standalone para mostrar/ocultar hints de instalación.
