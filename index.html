@@ -122,6 +122,39 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #475569;
     }
+
+    /* === Maximizar / Restaurar área gráfica (Pantalla Poligonal) === */
+    /* Estado maximizado: el canvas ocupa las 12 columnas y la columna de
+       detalles se colapsa. En móvil (grid-cols-1) el comportamiento es el
+       mismo: se ocultan los detalles y se libera el alto del canvas. */
+    #polygonScreen.maximized #canvasColumn {
+      grid-column: span 12 / span 12;
+    }
+    #polygonScreen.maximized #detailsColumn {
+      /* Colapsar visualmente: 0 columnas + opacidad 0 + sin alto */
+      grid-column: span 12 / span 12;
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    /* En móvil (grid-cols-1) el max-height es el que hace el trabajo */
+    @media (max-width: 1023px) {
+      #polygonScreen.maximized #detailsColumn {
+        display: none;
+      }
+    }
+    /* Cuando está maximizado, el canvas puede crecer en altura */
+    #polygonScreen.maximized #canvasContainer {
+      max-height: 70vh;
+      aspect-ratio: 4 / 3;
+    }
+    @media (min-width: 1024px) {
+      #polygonScreen.maximized #canvasContainer {
+        max-height: 75vh;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-blue-600 selection:text-white">
@@ -194,25 +227,50 @@
     <section id="polygonScreen" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Interactive Visual Canvas Box -->
-      <div class="lg:col-span-7 flex flex-col space-y-4">
+      <div id="canvasColumn" class="lg:col-span-7 flex flex-col space-y-4 transition-[flex-grow,flex-basis] duration-300 ease-in-out">
         <div class="glass-panel p-4 sm:p-5 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden">
           
           <!-- Header info on screen -->
-          <div class="flex items-center justify-between mb-3 z-10">
-            <div>
+          <div class="flex items-center justify-between mb-3 z-10 gap-2">
+            <div class="min-w-0">
               <span id="screenBadge" class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-900/50 text-blue-300 border border-blue-700/50">
                 Polígono s = 3
               </span>
               <h2 id="screenTitle" class="text-xl font-bold text-white mt-1">Números Triangulares</h2>
             </div>
-            <div class="text-right">
-              <span class="text-xs text-slate-400 block">Número Figurado</span>
-              <span id="currentNBadge" class="text-xl font-extrabold text-blue-400">P_n</span>
+            <div class="flex items-center gap-2 shrink-0">
+              <div class="text-right hidden sm:block">
+                <span class="text-xs text-slate-400 block">Número Figurado</span>
+                <span id="currentNBadge" class="text-xl font-extrabold text-blue-400">P_n</span>
+              </div>
+              <!-- Botón Maximizar / Restaurar -->
+              <button id="btnMaximizeCanvas"
+                      type="button"
+                      onclick="toggleCanvasMaximize()"
+                      class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition"
+                      title="Maximir área gráfica"
+                      aria-label="Maximir área gráfica"
+                      aria-pressed="false">
+                <!-- Icono "expandir" (4 flechas hacia fuera) -->
+                <svg id="iconMaximize" class="w-4 h-4 block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+                  <path d="M16 3h3a2 2 0 0 1 2 2v3"/>
+                  <path d="M8 21H5a2 2 0 0 1-2-2v-3"/>
+                  <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+                </svg>
+                <!-- Icono "restaurar" (4 flechas hacia dentro) — oculto por defecto -->
+                <svg id="iconRestore" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3"/>
+                  <path d="M21 8h-3a2 2 0 0 1-2-2V3"/>
+                  <path d="M3 16h3a2 2 0 0 1 2 2v3"/>
+                  <path d="M16 21v-3a2 2 0 0 1 2-2h3"/>
+                </svg>
+              </button>
             </div>
           </div>
 
           <!-- Canvas Container -->
-          <div class="relative w-full aspect-square max-h-[440px] bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-center p-2 overflow-hidden shadow-inner">
+          <div id="canvasContainer" class="relative w-full aspect-square max-h-[440px] bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-center p-2 overflow-hidden shadow-inner transition-[max-height,aspect-ratio] duration-300 ease-in-out">
             <canvas id="polyCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
             
             <!-- Floating overlay value -->
@@ -268,7 +326,7 @@
       </div>
 
       <!-- Mathematical & Explanatory Details Box -->
-      <div class="lg:col-span-5 flex flex-col space-y-4">
+      <div id="detailsColumn" class="lg:col-span-5 flex flex-col space-y-4 transition-all duration-300 ease-in-out overflow-hidden">
         
         <!-- Formula Card -->
         <div class="glass-panel p-5 rounded-2xl shadow-xl space-y-4">
@@ -815,6 +873,59 @@
       }
       requestAnimationFrame(step);
     }
+
+    /* === Maximizar / Restaurar área gráfica ===
+       Alterna la clase `maximized` en #polygonScreen. El CSS se encarga de
+       expandir el canvas a 12 columnas y colapsar la columna de detalles.
+       Es necesario re-dibujar el canvas después de la transición porque el
+       tamaño del contenedor cambia. */
+    let canvasMaximized = false;
+
+    function toggleCanvasMaximize() {
+      const screen = document.getElementById('polygonScreen');
+      const btn = document.getElementById('btnMaximizeCanvas');
+      const iconMax = document.getElementById('iconMaximize');
+      const iconRest = document.getElementById('iconRestore');
+      if (!screen) return;
+
+      canvasMaximized = !canvasMaximized;
+      screen.classList.toggle('maximized', canvasMaximized);
+
+      // Alternar iconos y estado ARIA
+      if (btn) {
+        btn.setAttribute('aria-pressed', String(canvasMaximized));
+        btn.title = canvasMaximized ? 'Restaurar área gráfica' : 'Maximir área gráfica';
+        btn.setAttribute('aria-label', canvasMaximized ? 'Restaurar área gráfica' : 'Maximir área gráfica');
+      }
+      if (iconMax) iconMax.classList.toggle('hidden', canvasMaximized);
+      if (iconRest) iconRest.classList.toggle('hidden', !canvasMaximized);
+
+      playTone(canvasMaximized ? 660 : 440, 'sine', 0.06);
+
+      // Re-dibujar al final de la transición CSS (300ms) para que el canvas
+      // se ajuste al nuevo tamaño del contenedor. También un dibujado inmediato
+      // para que no se vea en blanco durante la transición.
+      drawPolygonCanvas();
+      setTimeout(() => {
+        drawPolygonCanvas();
+        // Si la pestaña activa es multidim, también redimensionar el 3D
+        if (typeof threeRenderer !== 'undefined' && threeRenderer &&
+            !document.getElementById('multidimScreen').classList.contains('hidden')) {
+          // (no aplica aquí, pero dejamos el hook por si se reutiliza)
+        }
+      }, 320);
+    }
+
+    /* Atajo de teclado: tecla "m" para maximizar/restaurar el canvas.
+       Solo cuando la pantalla poligonal está visible y el foco no está en
+       un input/select/textarea. */
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'm' && e.key !== 'M') return;
+      const tag = (e.target && e.target.tagName) || '';
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(tag)) return;
+      if (document.getElementById('polygonScreen').classList.contains('hidden')) return;
+      toggleCanvasMaximize();
+    });
 
     /* Canvas 2D Rendering for Polygonal Shapes */
     function drawPolygonCanvas() {
